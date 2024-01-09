@@ -2,6 +2,8 @@
 
 This folder contains the source files of icons in the Inkscape format. The program uses optimized versions of these icons.
 
+![](pc-16.svg)![](pc-22.svg)![](pc-24.svg)![](pc-32.svg)![](pc-48.svg)![](pc-64.svg)![](pc-128.svg)![](pc-256.svg)
+
 ## Icons
 
 | Filenames     | Sizes                            | Use                       |
