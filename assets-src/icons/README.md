@@ -2,19 +2,19 @@
 
 This folder contains the source files of icons in the Inkscape format. The program uses optimized versions of these icons.
 
-![](pc-16.svg)![](pc-22.svg)![](pc-24.svg)![](pc-32.svg)![](pc-48.svg)![](pc-64.svg)![](pc-128.svg)![](pc-256.svg)
-
 ## Icons
 
-| Filenames     | Sizes                            | Use                       |
-| ------------- | -------------------------------- | ------------------------- |
-| pc-*          | 16, 22, 24, 32, 48, 64, 128, 256 | Template for other icons  |
-| app-*         | 16, 22, 24, 32, 48, 64, 128, 256 | Application icon          |
-| vm-new-*      | 48                               | New virtual machine       |
-| vm-settings-* | 48                               | Virtual machine settings  |
-| vm-remove-*   | 48                               | Remove virtual machine    |
-| vm-start-*    | 48                               | Start virtual machine     |
-| configure     | 48                               | Configure the application |
+### pc-*
+
+Template for other icons
+
+![](pc-16.svg)![](pc-22.svg)![](pc-24.svg)![](pc-32.svg)![](pc-48.svg)![](pc-64.svg)![](pc-128.svg)![](pc-256.svg)
+
+### app-*
+
+Application icon
+
+![](app-16.svg)![](app-22.svg)![](app-24.svg)![](app-32.svg)![](app-48.svg)![](app-64.svg)![](app-128.svg)![](app-256.svg)
 
 ## Margins
 
