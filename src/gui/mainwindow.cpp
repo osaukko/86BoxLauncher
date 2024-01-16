@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QListView>
 #include <QToolBar>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,46 +20,54 @@ void MainWindow::setupUi()
     resize({initialWidth, initialHeight});
 
     // Commands toolbar
-    newAction = new QAction(QIcon::fromTheme("document-new"), tr("New"), this);
-    settingsAction = new QAction(QIcon::fromTheme("document-edit"), tr("Settings"), this);
-    removeAction = new QAction(QIcon::fromTheme("document-close"), tr("Remove"), this);
-    startAction = new QAction(QIcon::fromTheme("media-playback-start"), tr("Start"), this);
-    commandsToolbar = new QToolBar(tr("Commands"), this);
-    commandsToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
-    commandsToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    commandsToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    commandsToolbar->layout()->setContentsMargins({});
-    commandsToolbar->addAction(newAction);
-    commandsToolbar->addAction(settingsAction);
-    commandsToolbar->addAction(removeAction);
-    commandsToolbar->addAction(startAction);
+    mNewAction = new QAction(QIcon::fromTheme("86box-new"), tr("New"), this);
+    mSettingsAction = new QAction(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
+    mCommandSettingsAction = new QAction(tr("Command settings"));
+    mStartAction = new QAction(QIcon::fromTheme("86box-start"), tr("Start"), this);
+    mRemoveAction = new QAction(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
+    mCommandsToolbar = new QToolBar(tr("Commands"), this);
+    mCommandsToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
+    mCommandsToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mCommandsToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    mCommandsToolbar->layout()->setContentsMargins({});
+    mCommandsToolbar->addAction(mNewAction);
+    mCommandsToolbar->addAction(mStartAction);
+    mSettingsButton = new QToolButton(mCommandsToolbar);
+    mSettingsButton->setDefaultAction(mSettingsAction);
+    mSettingsButton->setToolButtonStyle(mCommandsToolbar->toolButtonStyle());
+    mSettingsButton->setPopupMode(QToolButton::MenuButtonPopup);
+    mSettingsMenu = new QMenu(mSettingsButton);
+    mSettingsMenu->addAction(mCommandSettingsAction);
+    mSettingsButton->setMenu(mSettingsMenu);
+    mCommandsToolbar->addWidget(mSettingsButton);
+    mCommandsToolbar->addSeparator();
+    mCommandsToolbar->addAction(mRemoveAction);
 
     // Configure toolbar
-    configureAction = new QAction(QIcon::fromTheme("configure"), tr("Configure"), this);
-    configureToolbar = new QToolBar(tr("Configure"), this);
-    configureToolbar->layout()->setContentsMargins({});
-    configureToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
-    configureToolbar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    configureToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    configureToolbar->addSeparator();
-    configureToolbar->addAction(configureAction);
+    mConfigureAction = new QAction(QIcon::fromTheme("configure"), tr("Configure"), this);
+    mConfigureToolbar = new QToolBar(tr("Configure"), this);
+    mConfigureToolbar->layout()->setContentsMargins({});
+    mConfigureToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
+    mConfigureToolbar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mConfigureToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    mConfigureToolbar->addAction(mConfigureAction);
 
     // Layout for toolbars
-    toolbarLayout = new QHBoxLayout;
-    toolbarLayout->addWidget(commandsToolbar);
-    toolbarLayout->addStretch();
-    toolbarLayout->addWidget(configureToolbar);
+    mToolbarLayout = new QHBoxLayout;
+    mToolbarLayout->addWidget(mCommandsToolbar);
+    mToolbarLayout->addStretch();
+    mToolbarLayout->addWidget(mConfigureToolbar);
 
     // List view for virtual machines
-    vmView = new QListView;
+    mVmView = new QListView;
 
     // Layout for virtual machines
-    vmLayout = new QHBoxLayout;
-    vmLayout->addWidget(vmView);
+    mVmLayout = new QHBoxLayout;
+    mVmLayout->addWidget(mVmView);
 
     // Main layout
-    mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(toolbarLayout);
-    mainLayout->addLayout(vmLayout);
-    setLayout(mainLayout);
+    mMainLayout = new QVBoxLayout;
+    mMainLayout->addLayout(mToolbarLayout);
+    mMainLayout->addLayout(mVmLayout);
+    setLayout(mMainLayout);
 }

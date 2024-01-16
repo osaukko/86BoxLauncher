@@ -1,11 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QMenu>
 #include <QWidget>
 
 class QHBoxLayout;
 class QListView;
 class QToolBar;
+class QToolButton;
 class QVBoxLayout;
 
 class MainWindow : public QWidget
@@ -20,23 +22,28 @@ private:
     void setupUi();
 
     // Layouts
-    QVBoxLayout *mainLayout{};
-    QHBoxLayout *toolbarLayout{};
-    QHBoxLayout *vmLayout{};
+    QVBoxLayout *mMainLayout{};
+    QHBoxLayout *mToolbarLayout{};
+    QHBoxLayout *mVmLayout{};
 
     // Commands toolbar
-    QAction *newAction{};
-    QAction *removeAction{};
-    QAction *settingsAction{};
-    QAction *startAction{};
-    QToolBar *commandsToolbar{};
+    QAction *mNewAction{};
+    QAction *mRemoveAction{};
+    QAction *mSettingsAction{};
+    QAction *mCommandSettingsAction{};
+    QToolButton *mSettingsButton{};
+    QAction *mStartAction{};
+    QToolBar *mCommandsToolbar{};
 
     // Configure toolbar
-    QAction *configureAction{};
-    QToolBar *configureToolbar{};
+    QAction *mConfigureAction{};
+    QToolBar *mConfigureToolbar{};
+
+    // Menus
+    QMenu *mSettingsMenu{};
 
     // List view for virtual machines
-    QListView *vmView{};
+    QListView *mVmView{};
 };
 
 #endif // MAINWINDOW_H

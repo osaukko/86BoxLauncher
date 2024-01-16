@@ -38,7 +38,7 @@ This folder contains the source files of icons in the Inkscape format. The progr
         <td><img src="app-128.svg"/></td>
         <td><img src="app-256.svg"/></td>
     </tr>
-        <tr>
+    <tr>
         <td>86box-new</td>
         <td></td>
         <td></td>
@@ -49,8 +49,7 @@ This folder contains the source files of icons in the Inkscape format. The progr
         <td></td>
         <td></td>
     </tr>
-        </tr>
-        <tr>
+    <tr>
         <td>86box-settings</td>
         <td></td>
         <td></td>
@@ -61,8 +60,7 @@ This folder contains the source files of icons in the Inkscape format. The progr
         <td></td>
         <td></td>
     </tr>
-    </tr>
-        <tr>
+    <tr>
         <td>86box-remove</td>
         <td></td>
         <td></td>
@@ -73,8 +71,7 @@ This folder contains the source files of icons in the Inkscape format. The progr
         <td></td>
         <td></td>
     </tr>
-    </tr>
-        <tr>
+    <tr>
         <td>86box-start</td>
         <td></td>
         <td></td>
@@ -85,7 +82,19 @@ This folder contains the source files of icons in the Inkscape format. The progr
         <td></td>
         <td></td>
     </tr>
+    <tr>
+        <td>configure</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><img src="configure-48.svg"/></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
 </table>
+
 
 The pc icon is template for other icons.
 

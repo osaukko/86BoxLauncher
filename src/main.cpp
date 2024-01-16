@@ -9,6 +9,10 @@ int main(int argc, char *argv[])
 #endif
     QApplication const app(argc, argv);
 
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths()
+                               << QApplication::applicationDirPath() + "/icons");
+    QIcon::setThemeName("86BoxLauncher");
+
     MainWindow mainWindow;
     mainWindow.show();
 
