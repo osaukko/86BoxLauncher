@@ -42,6 +42,7 @@ void MainWindow::setupUi()
     mCommandsToolbar->addWidget(mSettingsButton);
     mCommandsToolbar->addSeparator();
     mCommandsToolbar->addAction(mRemoveAction);
+    mCommandsToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     // Configure toolbar
     mConfigureAction = new QAction(QIcon::fromTheme("configure"), tr("Configure"), this);

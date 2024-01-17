@@ -2,8 +2,8 @@
 Name=86Box Launcher Icons
 Comment=Custom icons for the 86Box Launcher
 Inherits=hicolor
-Directories=actions/48,apps/16,apps/22,apps/24,apps/32,apps/48,apps/64,apps/128,apps/256
-ScaledDirectories=actions/48@2x,apps/16@2x,apps/22@2x,apps/24@2x,apps/32@2x,apps/48@2x,apps/64@2x,apps/128@2x,apps/256@2x
+Directories=actions/48,apps/16,apps/22,apps/24,apps/32,apps/48,apps/64,apps/128,apps/256,machine/32
+ScaledDirectories=actions/48@2x,apps/16@2x,apps/22@2x,apps/24@2x,apps/32@2x,apps/48@2x,apps/64@2x,apps/128@2x,apps/256@2x,machine/32@2x
 Hidden=true
 
 [actions/48]
@@ -112,3 +112,17 @@ Context=Applications
 Type=Scalable
 MinSize=256
 MaxSize=1024
+
+[mahine/32]
+Size=32
+Type=Scalable
+MinSize=32
+MaxSize=1024
+
+[machine/32@2x]
+Size=32
+Scale=2
+Type=Scalable
+MinSize=32
+MaxSize=1024
+
