@@ -18,6 +18,9 @@ public:
 
 signals:
 
+private slots:
+    void showPreferences();
+
 private:
     void setupUi();
 
@@ -26,18 +29,18 @@ private:
     QHBoxLayout *mToolbarLayout{};
     QHBoxLayout *mVmLayout{};
 
-    // Commands toolbar
-    QAction *mNewAction{};
+    // Virtual machines toolbar
+    QAction *mAddAction{};
     QAction *mRemoveAction{};
     QAction *mSettingsAction{};
     QAction *mCommandSettingsAction{};
     QToolButton *mSettingsButton{};
     QAction *mStartAction{};
-    QToolBar *mCommandsToolbar{};
+    QToolBar *mMachinesToolbar{};
 
-    // Configure toolbar
-    QAction *mConfigureAction{};
-    QToolBar *mConfigureToolbar{};
+    // Preferences toolbar
+    QAction *mPreferencesAction{};
+    QToolBar *mPreferencesToolbar{};
 
     // Menus
     QMenu *mSettingsMenu{};

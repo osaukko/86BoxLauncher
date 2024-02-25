@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "preferencesdialog.h"
 
 #include <QHBoxLayout>
 #include <QListView>
@@ -12,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     setupUi();
 }
 
+void MainWindow::showPreferences()
+{
+    PreferencesDialog dialog(this);
+    dialog.exec();
+}
+
 void MainWindow::setupUi()
 {
     constexpr auto initialWidth = 640;
@@ -19,45 +26,45 @@ void MainWindow::setupUi()
     constexpr auto toolbarIconSize = 48;
     resize({initialWidth, initialHeight});
 
-    // Commands toolbar
-    mNewAction = new QAction(QIcon::fromTheme("86box-new"), tr("New"), this);
+    // Virtual machines toolbar
+    mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);
     mSettingsAction = new QAction(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
-    mCommandSettingsAction = new QAction(tr("Command settings"));
+    mCommandSettingsAction = new QAction(tr("Commands"));
     mStartAction = new QAction(QIcon::fromTheme("86box-start"), tr("Start"), this);
     mRemoveAction = new QAction(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
-    mCommandsToolbar = new QToolBar(tr("Commands"), this);
-    mCommandsToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
-    mCommandsToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mCommandsToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    mCommandsToolbar->layout()->setContentsMargins({});
-    mCommandsToolbar->addAction(mNewAction);
-    mCommandsToolbar->addAction(mStartAction);
-    mSettingsButton = new QToolButton(mCommandsToolbar);
+    mMachinesToolbar = new QToolBar(tr("Commands"), this);
+    mMachinesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
+    mMachinesToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    mMachinesToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    mMachinesToolbar->layout()->setContentsMargins({});
+    mMachinesToolbar->addAction(mAddAction);
+    mMachinesToolbar->addAction(mStartAction);
+    mSettingsButton = new QToolButton(mMachinesToolbar);
     mSettingsButton->setDefaultAction(mSettingsAction);
-    mSettingsButton->setToolButtonStyle(mCommandsToolbar->toolButtonStyle());
+    mSettingsButton->setToolButtonStyle(mMachinesToolbar->toolButtonStyle());
     mSettingsButton->setPopupMode(QToolButton::MenuButtonPopup);
     mSettingsMenu = new QMenu(mSettingsButton);
     mSettingsMenu->addAction(mCommandSettingsAction);
     mSettingsButton->setMenu(mSettingsMenu);
-    mCommandsToolbar->addWidget(mSettingsButton);
-    mCommandsToolbar->addSeparator();
-    mCommandsToolbar->addAction(mRemoveAction);
-    mCommandsToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+    mMachinesToolbar->addWidget(mSettingsButton);
+    mMachinesToolbar->addSeparator();
+    mMachinesToolbar->addAction(mRemoveAction);
+    mMachinesToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-    // Configure toolbar
-    mConfigureAction = new QAction(QIcon::fromTheme("configure"), tr("Configure"), this);
-    mConfigureToolbar = new QToolBar(tr("Configure"), this);
-    mConfigureToolbar->layout()->setContentsMargins({});
-    mConfigureToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
-    mConfigureToolbar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    mConfigureToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    mConfigureToolbar->addAction(mConfigureAction);
+    // Preferences toolbar
+    mPreferencesAction = new QAction(QIcon::fromTheme("preferences"), tr("Preferences"), this);
+    mPreferencesToolbar = new QToolBar(tr("Preferences"), this);
+    mPreferencesToolbar->layout()->setContentsMargins({});
+    mPreferencesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
+    mPreferencesToolbar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    mPreferencesToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    mPreferencesToolbar->addAction(mPreferencesAction);
 
     // Layout for toolbars
     mToolbarLayout = new QHBoxLayout;
-    mToolbarLayout->addWidget(mCommandsToolbar);
+    mToolbarLayout->addWidget(mMachinesToolbar);
     mToolbarLayout->addStretch();
-    mToolbarLayout->addWidget(mConfigureToolbar);
+    mToolbarLayout->addWidget(mPreferencesToolbar);
 
     // List view for virtual machines
     mVmView = new QListView;
@@ -71,4 +78,7 @@ void MainWindow::setupUi()
     mMainLayout->addLayout(mToolbarLayout);
     mMainLayout->addLayout(mVmLayout);
     setLayout(mMainLayout);
+
+    // Connecting actions
+    connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::showPreferences);
 }

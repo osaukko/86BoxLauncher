@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreferencesDialog</class>
+ <widget class="QDialog" name="PreferencesDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>418</width>
+    <height>427</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Preferences</string>
+  </property>
+  <property name="windowIcon">
+   <iconset theme="preferences"/>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="emulatorGroupBox">
+     <property name="title">
+      <string>86Box Emulator Binary</string>
+     </property>
+     <layout class="QGridLayout" name="emulatorLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="emulatorLabel">
+        <property name="text">
+         <string>Specify here which 86Box emulator program you want to use.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLineEdit" name="emulatorLineEdit"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QToolButton" name="emulatorBrowseToolButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="commandsGroupBox">
+     <property name="title">
+      <string>Default Commands</string>
+     </property>
+     <layout class="QVBoxLayout" name="commandsVerticalLayout">
+      <item>
+       <widget class="QLabel" name="commandsLabel">
+        <property name="text">
+         <string>&lt;p&gt;Here, you can configure default commands to run specific actions.&lt;/p&gt;&lt;p&gt;The following fields are replaced:&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;b&gt;{86box}&lt;/b&gt; is replaced with the 86Box emulator defined above&lt;/li&gt;&lt;li &gt;&lt;b&gt;{config}&lt;/b&gt; is replaced with a virtual machine configuration file&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;Please note: The literal characters { and } may be included by preceding them with the same character.&lt;/p&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QFormLayout" name="commandsFormLayout">
+        <item row="1" column="0">
+         <widget class="QLabel" name="settingsCommandLabel">
+          <property name="text">
+           <string>Settings</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="settingsCommandLineEdit">
+          <property name="text">
+           <string>{86box} --config {config} --settings</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="launchCommandLabel">
+          <property name="text">
+           <string>Launch</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="launchCommandLineEdit">
+          <property name="text">
+           <string>{86box} --config {config}</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>PreferencesDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>PreferencesDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
