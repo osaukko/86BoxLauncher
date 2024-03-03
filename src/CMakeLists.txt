@@ -7,3 +7,4 @@ file(COPY ../icons DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_subdirectory(gui)
 add_subdirectory(data)
+add_subdirectory(utils)

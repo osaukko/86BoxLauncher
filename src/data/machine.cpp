@@ -1,10 +1,16 @@
 #include "machine.h"
 
+// MachineData
+//--------------------------------------------------------------------------------------------------
+
 class MachineData : public QSharedData
 {
 public:
     QString name;
 };
+
+// Machine
+//--------------------------------------------------------------------------------------------------
 
 Machine::Machine()
     : data(new MachineData)
