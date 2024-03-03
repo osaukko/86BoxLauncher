@@ -31,6 +31,9 @@ void TestFormatter::invalidInput_data()
     QTest::addRow("missing { [alt]") << "{test}}";
     QTest::addRow("missing }") << "{test";
     QTest::addRow("missing } [alt]") << "{{test}";
+    QTest::addRow("empty {}") << "{}";
+    QTest::addRow("single {") << "{";
+    QTest::addRow("single }") << "}";
 }
 
 void TestFormatter::invalidInput()
@@ -58,6 +61,14 @@ void TestFormatter::validInput_data()
                                                            << "{test}";
     QTest::addRow("{test} = hello") << "{test}"
                                     << "hello";
+    QTest::addRow("{{test}} = {test}") << "{{test}}"
+                                       << "{test}";
+    QTest::addRow("{{{test}}} = {hello}") << "{{{test}}}"
+                                          << "{hello}";
+    QTest::addRow("{{{{test}}}} = {{test}}") << "{{{{test}}}}"
+                                             << "{{test}}";
+    QTest::addRow("{{{{{test}}}}} = {{hello}}") << "{{{{{test}}}}}"
+                                                << "{{hello}}";
     QTest::addRow("{test}{test} = hellohello") << "{test}{test}"
                                                << "hellohello";
     QTest::addRow("staring with literals") << "test {test}"
@@ -66,10 +77,10 @@ void TestFormatter::validInput_data()
                                           << "hello, world";
     QTest::addRow("missing variable is empty") << "{bar}"
                                                << "";
-    QTest::addRow("multiple literals and tags") << "test: {test}, foo: {foo}"
-                                                << "test: hello, foo: bar";
-    QTest::addRow("multiple literals and tags [alt]") << "{{test}}: {test}, {{foo}}: {foo}"
-                                                      << "{test}: hello, {foo}: bar";
+    QTest::addRow("multiple literals and variables") << "test: {test}, foo: {foo}"
+                                                     << "test: hello, foo: bar";
+    QTest::addRow("multiple literals and variables [alt]") << "{{test}}: {test}, {{foo}}: {foo}"
+                                                           << "{test}: hello, {foo}: bar";
 }
 
 void TestFormatter::validInput()

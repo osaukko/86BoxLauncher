@@ -1,6 +1,7 @@
 #ifndef FORMATTER_H
 #define FORMATTER_H
 
+#include <QHash>
 #include <QSharedDataPointer>
 
 class FormatterData;
@@ -14,7 +15,7 @@ public:
     ~Formatter();
 
     bool setInput(const QString &input);
-    QString format(const QHash<QString, QString> &variables);
+    [[nodiscard]] QString format(const QHash<QString, QString> &variables) const;
 
     static QString format(const QString &input,
                           const QHash<QString, QString> &variables,

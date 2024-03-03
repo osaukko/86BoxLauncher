@@ -14,4 +14,6 @@ include(DetectQt)
 detect_qt_version()
 message(STATUS "Using Qt version ${QT_VERSION_STR}")
 
+enable_testing(true)
+
 add_subdirectory(src)
