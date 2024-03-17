@@ -14,19 +14,24 @@ Settings::Settings(QObject *parent)
 
 Settings::~Settings() = default;
 
+QByteArray Settings::mainWindowGeometry() const
+{
+    return mSettings->value("MainWindow/geometry").toByteArray();
+}
+
 QString Settings::emulatorBinary() const
 {
-    return mSettings->value("emulatorBinary").toString();
+    return mSettings->value("86box/emulatorBinary").toString();
 }
 
 QString Settings::startCommand() const
 {
-    return mSettings->value("startCommand", DEFAULT_START_COMMAND).toString();
+    return mSettings->value("86box/startCommand", DEFAULT_START_COMMAND).toString();
 }
 
 QString Settings::settingsCommand() const
 {
-    return mSettings->value("settingsCommand", DEFAULT_SETTINGS_COMMAND).toString();
+    return mSettings->value("86box/settingsCommand", DEFAULT_SETTINGS_COMMAND).toString();
 }
 
 QString Settings::configHome()
@@ -44,29 +49,32 @@ void Settings::resetDefaults()
     setSettingsCommand(DEFAULT_SETTINGS_COMMAND);
 }
 
+void Settings::setMainWindowGeometry(const QByteArray &value)
+{
+    mSettings->setValue("MainWindow/geometry", value);
+    mSettings->sync();
+}
+
 void Settings::setEmulatorBinary(const QString &value)
 {
     if (emulatorBinary() != value) {
-        mSettings->setValue("emulatorBinary", value);
+        mSettings->setValue("86box/emulatorBinary", value);
         mSettings->sync();
-        emit emulatorBinaryChanged(value);
     }
 }
 
 void Settings::setStartCommand(const QString &value)
 {
     if (startCommand() != value) {
-        mSettings->setValue("startCommand", value);
+        mSettings->setValue("86box/startCommand", value);
         mSettings->sync();
-        emit startCommandChanged(value);
     }
 }
 
 void Settings::setSettingsCommand(const QString &value)
 {
     if (settingsCommand() != value) {
-        mSettings->setValue("settingsCommand", value);
+        mSettings->setValue("86box/settingsCommand", value);
         mSettings->sync();
-        emit settingsCommandChanged(value);
     }
 }

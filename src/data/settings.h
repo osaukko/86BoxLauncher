@@ -8,16 +8,12 @@ class Settings final : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(Settings)
-    Q_PROPERTY(QString emulatorBinary READ emulatorBinary WRITE setEmulatorBinary NOTIFY
-                   emulatorBinaryChanged FINAL)
-    Q_PROPERTY(QString startCommand READ startCommand WRITE setStartCommand NOTIFY
-                   startCommandChanged FINAL)
-    Q_PROPERTY(QString settingsCommand READ settingsCommand WRITE setSettingsCommand NOTIFY
-                   settingsCommandChanged FINAL)
 
 public:
     explicit Settings(QObject *parent = nullptr);
     ~Settings() final;
+
+    [[nodiscard]] QByteArray mainWindowGeometry() const;
 
     [[nodiscard]] QString emulatorBinary() const;
     [[nodiscard]] QString startCommand() const;
@@ -27,14 +23,12 @@ public:
 
 public slots:
     void resetDefaults();
-    void setEmulatorBinary(const QString &);
-    void setStartCommand(const QString &);
-    void setSettingsCommand(const QString &);
 
-signals:
-    void emulatorBinaryChanged(const QString &);
-    void startCommandChanged(const QString &);
-    void settingsCommandChanged(const QString &);
+    void setMainWindowGeometry(const QByteArray &);
+
+    void setEmulatorBinary(const QString &);
+    void setSettingsCommand(const QString &);
+    void setStartCommand(const QString &);
 
 private:
     QSettings *mSettings{};

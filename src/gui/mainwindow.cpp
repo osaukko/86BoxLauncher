@@ -15,6 +15,12 @@ MainWindow::MainWindow(QWidget *parent)
     setupUi();
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    mSettings->setMainWindowGeometry(saveGeometry());
+    QWidget::closeEvent(event);
+}
+
 void MainWindow::showPreferences()
 {
     PreferencesDialog dialog(mSettings, this);
@@ -29,7 +35,9 @@ void MainWindow::setupUi()
     resize({initialWidth, initialHeight});
     setWindowIcon(QIcon::fromTheme("86boxlauncher"));
 
+    // Restore settings
     mSettings = new Settings(this);
+    restoreGeometry(mSettings->mainWindowGeometry());
 
     // Virtual machines toolbar
     mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);

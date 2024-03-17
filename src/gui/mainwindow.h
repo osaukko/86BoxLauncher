@@ -17,7 +17,9 @@ class MainWindow : public QWidget
 public:
     explicit MainWindow(QWidget *parent = nullptr);
 
-signals:
+    // QWidget interface
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private slots:
     void showPreferences();
