@@ -11,7 +11,8 @@ int main(int argc, char *argv[])
 
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths()
                                << QApplication::applicationDirPath() + "/icons");
-    QIcon::setThemeName("86BoxLauncher");
+    QIcon::setThemeName(QIcon::themeName());
+    QIcon::setFallbackThemeName("86BoxLauncher");
 
     MainWindow mainWindow;
     mainWindow.show();

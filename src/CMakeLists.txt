@@ -5,6 +5,8 @@ target_link_libraries(86BoxLauncher gui data)
 # Copy icons to the current binary folder
 file(COPY ../icons DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+include_directories(.)
+
 add_subdirectory(gui)
 add_subdirectory(data)
 add_subdirectory(utils)

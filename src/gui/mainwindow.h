@@ -9,6 +9,7 @@ class QListView;
 class QToolBar;
 class QToolButton;
 class QVBoxLayout;
+class Settings;
 
 class MainWindow : public QWidget
 {
@@ -23,6 +24,9 @@ private slots:
 
 private:
     void setupUi();
+
+    // Settings manager
+    Settings *mSettings{};
 
     // Layouts
     QVBoxLayout *mMainLayout{};

@@ -3,8 +3,9 @@
 
 #include <QSharedDataPointer>
 
-class QIcon;
 class MachineData;
+class QIcon;
+class QString;
 
 class Machine
 {

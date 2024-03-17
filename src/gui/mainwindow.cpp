@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "preferencesdialog.h"
 
+#include "data/settings.h"
+
 #include <QHBoxLayout>
 #include <QListView>
 #include <QToolBar>
@@ -15,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::showPreferences()
 {
-    PreferencesDialog dialog(this);
+    PreferencesDialog dialog(mSettings, this);
     dialog.exec();
 }
 
@@ -25,6 +27,8 @@ void MainWindow::setupUi()
     constexpr auto initialHeight = 480;
     constexpr auto toolbarIconSize = 48;
     resize({initialWidth, initialHeight});
+
+    mSettings = new Settings(this);
 
     // Virtual machines toolbar
     mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);
@@ -52,7 +56,7 @@ void MainWindow::setupUi()
     mMachinesToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     // Preferences toolbar
-    mPreferencesAction = new QAction(QIcon::fromTheme("preferences"), tr("Preferences"), this);
+    mPreferencesAction = new QAction(QIcon::fromTheme("86box-preferences"), tr("Preferences"), this);
     mPreferencesToolbar = new QToolBar(tr("Preferences"), this);
     mPreferencesToolbar->layout()->setContentsMargins({});
     mPreferencesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
