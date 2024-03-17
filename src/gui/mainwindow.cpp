@@ -27,6 +27,7 @@ void MainWindow::setupUi()
     constexpr auto initialHeight = 480;
     constexpr auto toolbarIconSize = 48;
     resize({initialWidth, initialHeight});
+    setWindowIcon(QIcon::fromTheme("86boxlauncher"));
 
     mSettings = new Settings(this);
 

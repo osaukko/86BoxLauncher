@@ -14,7 +14,7 @@
    <string>Preferences</string>
   </property>
   <property name="windowIcon">
-   <iconset theme="preferences"/>
+   <iconset theme="86box-preferences"/>
   </property>
   <layout class="QVBoxLayout" name="mainLayout">
    <property name="sizeConstraint">

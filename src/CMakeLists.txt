@@ -2,11 +2,28 @@ add_executable(86BoxLauncher main.cpp)
 
 target_link_libraries(86BoxLauncher gui data)
 
-# Copy icons to the current binary folder
-file(COPY ../icons DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 include_directories(.)
 
 add_subdirectory(gui)
 add_subdirectory(data)
 add_subdirectory(utils)
+
+# Copy icons to the current binary folder
+if(WIN32)
+  # Symbolic links require administrator privileges and are a bit problematic
+  # because of that. Therefore, we copy files instead of symbolic links for
+  # Windows releases.
+  file(
+    GLOB_RECURSE ICONFILES
+    LIST_DIRECTORIES false
+    RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    FOLLOW_SYMLINKS icons/*)
+  foreach(ICONFILE ${ICONFILES})
+    cmake_path(GET ICONFILE PARENT_PATH ICONPATH)
+    file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${ICONPATH})
+    file(COPY_FILE ${CMAKE_CURRENT_SOURCE_DIR}/${ICONFILE}
+         ${CMAKE_CURRENT_BINARY_DIR}/${ICONFILE} ONLY_IF_DIFFERENT)
+  endforeach()
+else()
+  file(COPY icons DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()

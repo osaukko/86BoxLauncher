@@ -27,7 +27,7 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::onAccepted()
 {
-    mSettings->setEmulatorBinary(mUi->emulatorLineEdit->text());
+    mSettings->setEmulatorBinary(QDir::fromNativeSeparators(mUi->emulatorLineEdit->text()));
     mSettings->setStartCommand(mUi->startCommandLineEdit->text());
     mSettings->setSettingsCommand(mUi->settingsCommandLineEdit->text());
     accept();
@@ -56,13 +56,13 @@ void PreferencesDialog::onEmulatorBrowseButtonClicked()
                                        path,
                                        filter);
     if (!emulatorPath.isNull()) {
-        mUi->emulatorLineEdit->setText(emulatorPath);
+        mUi->emulatorLineEdit->setText(QDir::toNativeSeparators(emulatorPath));
     }
 }
 
 void PreferencesDialog::loadSettings()
 {
-    mUi->emulatorLineEdit->setText(mSettings->emulatorBinary());
+    mUi->emulatorLineEdit->setText(QDir::toNativeSeparators(mSettings->emulatorBinary()));
     mUi->startCommandLineEdit->setText(mSettings->startCommand());
     mUi->settingsCommandLineEdit->setText(mSettings->settingsCommand());
 }
