@@ -45,9 +45,9 @@ void PreferencesDialog::onButtonClicked(QAbstractButton *button)
 void PreferencesDialog::onEmulatorBrowseButtonClicked()
 {
 #ifdef Q_OS_WIN
-    const auto filter = tr("Executable (*.exe);;All files (*)");
+    const auto filter = tr("86Box Emulator (86Box.exe);;Executable (*.exe);;All files (*)");
 #else
-    const auto filter = QString{};
+    const auto filter = tr("86Box Emulator (86Box);;All files (*)");
 #endif
     const auto path = QFileInfo(mSettings->emulatorBinary()).absolutePath();
     const QString emulatorPath
