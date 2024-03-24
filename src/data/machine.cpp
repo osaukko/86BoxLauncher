@@ -11,7 +11,7 @@ public:
     void loadIcon();
 
     //NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-    Machine::IconType iconType{Machine::FromTheme};
+    Machine::IconType iconType{Machine::IconFromTheme};
     QIcon icon;
     QString iconName{"pc"};
     QString name;
@@ -33,11 +33,11 @@ void MachineData::loadIcon()
     case Machine::NoIcon:
         return;
 
-    case Machine::FromTheme:
+    case Machine::IconFromTheme:
         icon = QIcon::fromTheme(iconName);
         break;
 
-    case Machine::FromFile:
+    case Machine::IconFromFile:
         icon = QIcon(iconName);
         break;
     }

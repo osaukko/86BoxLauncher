@@ -2,6 +2,7 @@
 #include "ui_machinedialog.h"
 
 #include <QDir>
+#include <QFileDialog>
 
 MachineDialog::MachineDialog(QWidget *parent)
     : QDialog(parent)
@@ -9,12 +10,19 @@ MachineDialog::MachineDialog(QWidget *parent)
 {
     mUi->setupUi(this);
     mUi->commandsGroupBox->hide();
+
+    setupIconsCompoBox();
     setMachineVariables();
     onAdvancedButtonToggled();
+
     connect(mUi->advancedPushButton,
             &QPushButton::toggled,
             this,
             &MachineDialog::onAdvancedButtonToggled);
+    connect(mUi->iconToolButton,
+            &QToolButton::clicked,
+            this,
+            &MachineDialog::onIconToolButtonClicked);
 }
 
 MachineDialog::~MachineDialog()
@@ -42,6 +50,45 @@ void MachineDialog::onAdvancedButtonToggled()
     }
 }
 
+void MachineDialog::onIconToolButtonClicked()
+{
+    const auto iconFile = QFileDialog::getOpenFileName(this,
+                                                       tr("Select icon"),
+                                                       {},
+                                                       tr("Icon file (*.ico *.png *.svg *.svgz)"));
+    if (!iconFile.isNull()) {
+        mMachine.setIcon(Machine::IconFromFile, iconFile);
+        setIcon();
+    }
+}
+
+void MachineDialog::setIcon()
+{
+    auto *icb = mUi->iconComboBox;
+    auto lastIndex = icb->count() - 1;
+
+    switch (mMachine.iconType()) {
+    case Machine::NoIcon:
+        icb->setCurrentIndex(0);
+        break;
+
+    case Machine::IconFromTheme:
+        icb->setCurrentText(mMachine.iconName());
+        break;
+
+    case Machine::IconFromFile:
+        if (icb->itemData(lastIndex).value<Machine::IconType>() == Machine::IconFromFile) {
+            icb->setItemIcon(lastIndex, mMachine.icon());
+            icb->setItemText(lastIndex, mMachine.iconName());
+        } else {
+            mUi->iconComboBox->addItem(mMachine.icon(), mMachine.iconName(), Machine::IconFromFile);
+            ++lastIndex;
+        }
+        icb->setCurrentIndex(lastIndex);
+        break;
+    }
+}
+
 void MachineDialog::setMachineVariables()
 {
     mUi->nameLineEdit->setText(mMachine.name());
@@ -49,9 +96,31 @@ void MachineDialog::setMachineVariables()
     mUi->configLineEdit->setText(QDir::toNativeSeparators(mMachine.configFile()));
     mUi->startCommandLineEdit->setText(mMachine.startCommand());
     mUi->settingsCommandLineEdit->setText(mMachine.settingsCommand());
+    setIcon();
 
     // Set the advanced button checked if we have any custom command
     if (!mMachine.startCommand().isEmpty() || !mMachine.settingsCommand().isEmpty()) {
         mUi->advancedPushButton->setChecked(true);
+    }
+}
+
+void MachineDialog::setupIconsCompoBox()
+{
+    mUi->iconComboBox->addItem(tr("No icon"), Machine::NoIcon);
+    const auto machine_icons = {
+        "cpu-8086",
+        "cpu-8088",
+        "cpu-80286",
+        "cpu-80386",
+        "cpu-80486",
+        "cpu-80586",
+        "cpu-80686",
+        "pc",
+    };
+    for (const auto &name : machine_icons) {
+        auto icon = QIcon::fromTheme(name);
+        if (!icon.isNull()) {
+            mUi->iconComboBox->addItem(icon, name, Machine::IconFromTheme);
+        }
     }
 }

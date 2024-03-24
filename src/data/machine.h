@@ -10,7 +10,7 @@ class QString;
 class Machine
 {
 public:
-    enum IconType { NoIcon, FromTheme, FromFile };
+    enum IconType { NoIcon, IconFromTheme, IconFromFile };
 
     Machine();
     Machine(const Machine &other);

@@ -22,12 +22,15 @@ public:
 
 private slots:
     void onAdvancedButtonToggled();
+    void onIconToolButtonClicked();
 
 private:
     Ui::MachineDialog *mUi;
     Machine mMachine;
 
+    void setIcon();
     void setMachineVariables();
+    void setupIconsCompoBox();
 };
 
 #endif // MACHINEDIALOG_H
