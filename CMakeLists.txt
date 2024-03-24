@@ -9,11 +9,15 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(BUILD_TESTS "Build unit tests" OFF)
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include(DetectQt)
 detect_qt_version()
 message(STATUS "Using Qt version ${QT_VERSION_STR}")
 
-enable_testing(true)
-
 add_subdirectory(src)
+
+if(BUILD_TESTS)
+  enable_testing(true)
+endif()

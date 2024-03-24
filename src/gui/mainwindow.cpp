@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "machinedialog.h"
 #include "preferencesdialog.h"
 
 #include "data/settings.h"
@@ -19,6 +20,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     mSettings->setMainWindowGeometry(saveGeometry());
     QWidget::closeEvent(event);
+}
+
+void MainWindow::addMachine()
+{
+    MachineDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::showPreferences()
@@ -42,10 +49,10 @@ void MainWindow::setupUi()
     // Virtual machines toolbar
     mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);
     mSettingsAction = new QAction(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
-    mCommandSettingsAction = new QAction(tr("Commands"));
+    mEditAction = new QAction(tr("Edit Machine"));
     mStartAction = new QAction(QIcon::fromTheme("86box-start"), tr("Start"), this);
     mRemoveAction = new QAction(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
-    mMachinesToolbar = new QToolBar(tr("Commands"), this);
+    mMachinesToolbar = new QToolBar(tr("Actions"), this);
     mMachinesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
     mMachinesToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     mMachinesToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
@@ -57,7 +64,7 @@ void MainWindow::setupUi()
     mSettingsButton->setToolButtonStyle(mMachinesToolbar->toolButtonStyle());
     mSettingsButton->setPopupMode(QToolButton::MenuButtonPopup);
     mSettingsMenu = new QMenu(mSettingsButton);
-    mSettingsMenu->addAction(mCommandSettingsAction);
+    mSettingsMenu->addAction(mEditAction);
     mSettingsButton->setMenu(mSettingsMenu);
     mMachinesToolbar->addWidget(mSettingsButton);
     mMachinesToolbar->addSeparator();
@@ -93,5 +100,6 @@ void MainWindow::setupUi()
     setLayout(mMainLayout);
 
     // Connecting actions
+    connect(mAddAction, &QAction::triggered, this, &MainWindow::addMachine);
     connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::showPreferences);
 }

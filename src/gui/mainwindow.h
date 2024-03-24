@@ -22,6 +22,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
+    void addMachine();
     void showPreferences();
 
 private:
@@ -39,7 +40,7 @@ private:
     QAction *mAddAction{};
     QAction *mRemoveAction{};
     QAction *mSettingsAction{};
-    QAction *mCommandSettingsAction{};
+    QAction *mEditAction{};
     QToolButton *mSettingsButton{};
     QAction *mStartAction{};
     QToolBar *mMachinesToolbar{};

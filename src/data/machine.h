@@ -10,7 +10,7 @@ class QString;
 class Machine
 {
 public:
-    enum IconType { FromTheme, FromFile };
+    enum IconType { NoIcon, FromTheme, FromFile };
 
     Machine();
     Machine(const Machine &other);
@@ -26,16 +26,16 @@ public:
     void setName(const QString &name);
 
     [[nodiscard]] QString summary() const;
-    void setSummary(const QString &description);
+    void setSummary(const QString &summary);
 
     [[nodiscard]] QString configFile() const;
     void setConfigFile(const QString &configFile);
 
     [[nodiscard]] QString startCommand() const;
-    void setStartCommand(const QString &startCommand) const;
+    void setStartCommand(const QString &startCommand);
 
     [[nodiscard]] QString settingsCommand() const;
-    void setSettingsCommand(const QString &settingsCommand) const;
+    void setSettingsCommand(const QString &settingsCommand);
 
     Machine &operator=(const Machine &other);
     Machine &operator=(Machine &&other) noexcept;
