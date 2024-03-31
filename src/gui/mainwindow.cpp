@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "machinedialog.h"
+#include "mvc/machinelistmodel.h"
 #include "preferencesdialog.h"
 
 #include "data/settings.h"
@@ -9,6 +10,10 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
+
+namespace {
+const QSize machine_icon_size = {32, 32};
+} // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
@@ -25,7 +30,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::addMachine()
 {
     MachineDialog dialog(this);
-    dialog.exec();
+    dialog.setWindowTitle(tr("Add Machine"));
+
+    Machine newMachine;
+    newMachine.setIcon(Machine::IconFromTheme, "pc");
+    dialog.setMachine(newMachine);
+
+    if (dialog.exec() == MachineDialog::Accepted) {
+        mVmModel->addMachine(dialog.machine());
+    }
 }
 
 void MainWindow::showPreferences()
@@ -86,8 +99,11 @@ void MainWindow::setupUi()
     mToolbarLayout->addStretch();
     mToolbarLayout->addWidget(mPreferencesToolbar);
 
-    // List view for virtual machines
+    // List view and model for virtual machines
+    mVmModel = new MachineListModel(this);
     mVmView = new QListView;
+    mVmView->setIconSize(machine_icon_size);
+    mVmView->setModel(mVmModel);
 
     // Layout for virtual machines
     mVmLayout = new QHBoxLayout;

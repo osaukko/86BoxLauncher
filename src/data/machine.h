@@ -2,6 +2,7 @@
 #define MACHINE_H
 
 #include <QSharedDataPointer>
+#include <QVariantMap>
 
 class MachineData;
 class QIcon;
@@ -13,8 +14,9 @@ public:
     enum IconType { NoIcon, IconFromTheme, IconFromFile };
 
     Machine();
-    Machine(const Machine &other);
     Machine(Machine &&other) noexcept;
+    Machine(const Machine &other);
+    explicit Machine(const QVariantMap &machine);
     ~Machine();
 
     [[nodiscard]] IconType iconType() const;
@@ -37,11 +39,16 @@ public:
     [[nodiscard]] QString settingsCommand() const;
     void setSettingsCommand(const QString &settingsCommand);
 
+    [[nodiscard]] QVariantMap save() const;
+    void restore(const QVariantMap &machine);
+
     Machine &operator=(const Machine &other);
     Machine &operator=(Machine &&other) noexcept;
 
 private:
     QSharedDataPointer<MachineData> data;
 };
+
+Q_DECLARE_METATYPE(Machine::IconType)
 
 #endif // MACHINE_H

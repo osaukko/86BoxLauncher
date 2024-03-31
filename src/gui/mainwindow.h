@@ -4,6 +4,7 @@
 #include <QMenu>
 #include <QWidget>
 
+class MachineListModel;
 class QHBoxLayout;
 class QListView;
 class QToolBar;
@@ -54,6 +55,9 @@ private:
 
     // List view for virtual machines
     QListView *mVmView{};
+
+    // Model for virtual machines
+    MachineListModel *mVmModel{};
 };
 
 #endif // MAINWINDOW_H

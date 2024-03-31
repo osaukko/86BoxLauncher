@@ -1,5 +1,7 @@
 #include "machine.h"
+
 #include <QIcon>
+#include <QVariantMap>
 
 // MachineData
 //--------------------------------------------------------------------------------------------------
@@ -7,25 +9,23 @@
 class MachineData : public QSharedData
 {
 public:
-    MachineData();
     void loadIcon();
 
     //NOLINTBEGIN(misc-non-private-member-variables-in-classes)
-    Machine::IconType iconType{Machine::IconFromTheme};
+    Machine::IconType iconType{Machine::NoIcon};
     QIcon icon;
-    QString iconName{"pc"};
+    QString iconName;
     QString name;
     QString summary;
     QString configFile;
     QString startCommand;
     QString settingsCommand;
+
+    // We keep any extra variables here so that we save them back.
+    // Additional variables can be user-defined or from the new version of the launcher.
+    QVariantMap extraVariables;
     //NOLINTEND(misc-non-private-member-variables-in-classes)
 };
-
-MachineData::MachineData()
-{
-    loadIcon();
-}
 
 void MachineData::loadIcon()
 {
@@ -60,6 +60,12 @@ Machine::Machine(const Machine &other) = default;
 Machine::Machine(Machine &&other) noexcept
     : data(std::move(other.data))
 {}
+
+Machine::Machine(const QVariantMap &machine)
+    : data(new MachineData)
+{
+    restore(machine);
+}
 
 Machine::~Machine() = default;
 
@@ -133,6 +139,31 @@ QString Machine::settingsCommand() const
 void Machine::setSettingsCommand(const QString &settingsCommand)
 {
     data->settingsCommand = settingsCommand;
+}
+
+QVariantMap Machine::save() const
+{
+    auto map = data->extraVariables;
+    map["iconType"] = data->iconType;
+    map["iconName"] = data->iconName;
+    map["name"] = data->name;
+    map["summary"] = data->summary;
+    map["configFile"] = data->configFile;
+    map["startCommand"] = data->startCommand;
+    map["settingsCommand"] = data->settingsCommand;
+    return map;
+}
+
+void Machine::restore(const QVariantMap &machine)
+{
+    data->extraVariables = machine;
+    setIcon(data->extraVariables.take("iconType").value<IconType>(),
+            data->extraVariables.take("iconName").toString());
+    data->name = data->extraVariables.take("name").toString();
+    data->summary = data->extraVariables.take("summary").toString();
+    data->configFile = data->extraVariables.take("configFile").toString();
+    data->startCommand = data->extraVariables.take("startCommand").toString();
+    data->settingsCommand = data->extraVariables.take("settingsCommand").toString();
 }
 
 Machine &Machine::operator=(const Machine &other) = default;

@@ -19,5 +19,5 @@ message(STATUS "Using Qt version ${QT_VERSION_STR}")
 add_subdirectory(src)
 
 if(BUILD_TESTS)
-  enable_testing(true)
+    add_subdirectory(tests)
 endif()

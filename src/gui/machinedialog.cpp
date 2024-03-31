@@ -12,7 +12,6 @@ MachineDialog::MachineDialog(QWidget *parent)
     mUi->commandsGroupBox->hide();
 
     setupIconsCompoBox();
-    setMachineVariables();
     onAdvancedButtonToggled();
 
     connect(mUi->advancedPushButton,
@@ -23,6 +22,8 @@ MachineDialog::MachineDialog(QWidget *parent)
             &QToolButton::clicked,
             this,
             &MachineDialog::onIconToolButtonClicked);
+    connect(mUi->buttonBox, &QDialogButtonBox::accepted, this, &MachineDialog::onButtonBoxAccepted);
+    connect(mUi->buttonBox, &QDialogButtonBox::rejected, this, &MachineDialog::reject);
 }
 
 MachineDialog::~MachineDialog()
@@ -38,7 +39,17 @@ Machine MachineDialog::machine() const
 void MachineDialog::setMachine(const Machine &machine)
 {
     mMachine = machine;
-    setMachineVariables();
+    mUi->nameLineEdit->setText(mMachine.name());
+    mUi->summaryLineEdit->setText(mMachine.summary());
+    mUi->configLineEdit->setText(QDir::toNativeSeparators(mMachine.configFile()));
+    mUi->startCommandLineEdit->setText(mMachine.startCommand());
+    mUi->settingsCommandLineEdit->setText(mMachine.settingsCommand());
+    setIcon();
+
+    // Set the advanced button checked if we have any custom command
+    if (!mMachine.startCommand().isEmpty() || !mMachine.settingsCommand().isEmpty()) {
+        mUi->advancedPushButton->setChecked(true);
+    }
 }
 
 void MachineDialog::onAdvancedButtonToggled()
@@ -48,6 +59,19 @@ void MachineDialog::onAdvancedButtonToggled()
     } else {
         mUi->advancedPushButton->setIcon(QIcon::fromTheme("arrow-down"));
     }
+    mUi->commandsGroupBox->setVisible(mUi->advancedPushButton->isChecked());
+}
+
+void MachineDialog::onButtonBoxAccepted()
+{
+    mMachine.setIcon(mUi->iconComboBox->currentData().value<Machine::IconType>(),
+                     mUi->iconComboBox->currentText());
+    mMachine.setName(mUi->nameLineEdit->text());
+    mMachine.setSummary(mUi->summaryLineEdit->text());
+    mMachine.setConfigFile(mUi->configLineEdit->text());
+    mMachine.setStartCommand(mUi->startCommandLineEdit->text());
+    mMachine.setSettingsCommand(mUi->settingsCommandLineEdit->text());
+    accept();
 }
 
 void MachineDialog::onIconToolButtonClicked()
@@ -86,21 +110,6 @@ void MachineDialog::setIcon()
         }
         icb->setCurrentIndex(lastIndex);
         break;
-    }
-}
-
-void MachineDialog::setMachineVariables()
-{
-    mUi->nameLineEdit->setText(mMachine.name());
-    mUi->summaryLineEdit->setText(mMachine.summary());
-    mUi->configLineEdit->setText(QDir::toNativeSeparators(mMachine.configFile()));
-    mUi->startCommandLineEdit->setText(mMachine.startCommand());
-    mUi->settingsCommandLineEdit->setText(mMachine.settingsCommand());
-    setIcon();
-
-    // Set the advanced button checked if we have any custom command
-    if (!mMachine.startCommand().isEmpty() || !mMachine.settingsCommand().isEmpty()) {
-        mUi->advancedPushButton->setChecked(true);
     }
 }
 

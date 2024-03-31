@@ -1,4 +1,4 @@
-#include "formatter.h"
+#include "utils/formatter.h"
 
 #include <QtTest/QTest>
 

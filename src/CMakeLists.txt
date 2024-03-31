@@ -4,8 +4,9 @@ target_link_libraries(86BoxLauncher gui data)
 
 include_directories(.)
 
-add_subdirectory(gui)
 add_subdirectory(data)
+add_subdirectory(gui)
+add_subdirectory(mvc)
 add_subdirectory(utils)
 
 # Copy icons to the current binary folder
