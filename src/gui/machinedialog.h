@@ -31,7 +31,6 @@ private:
     Machine mMachine;
 
     void setIcon();
-    void setMachineVariables();
     void setupIconsCompoBox();
 };
 

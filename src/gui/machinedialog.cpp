@@ -72,7 +72,7 @@ void MachineDialog::onButtonBoxAccepted()
                      mUi->iconComboBox->currentText());
     mMachine.setName(mUi->nameLineEdit->text());
     mMachine.setSummary(mUi->summaryLineEdit->text());
-    mMachine.setConfigFile(mUi->configLineEdit->text());
+    mMachine.setConfigFile(QDir::fromNativeSeparators(mUi->configLineEdit->text()));
     mMachine.setStartCommand(mUi->startCommandLineEdit->text());
     mMachine.setSettingsCommand(mUi->settingsCommandLineEdit->text());
     accept();
@@ -82,13 +82,13 @@ void MachineDialog::onConfigToolButtonClicked()
 {
     QFileDialog fileDialog(this,
                            tr("Select config file"),
-                           QFileInfo(mUi->configLineEdit->text()).absolutePath(),
+                           QFileInfo(QDir::fromNativeSeparators(mUi->configLineEdit->text())).absolutePath(),
                            tr("Config file (*.cfg);;All files(*)"));
     fileDialog.setFileMode(QFileDialog::AnyFile);
     fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
     fileDialog.setDefaultSuffix("cfg");
     if (fileDialog.exec() == QFileDialog::Accepted) {
-        mUi->configLineEdit->setText(fileDialog.selectedFiles().value(0));
+        mUi->configLineEdit->setText(QDir::toNativeSeparators(fileDialog.selectedFiles().value(0)));
     }
 }
 
