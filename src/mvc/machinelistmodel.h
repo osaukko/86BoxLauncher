@@ -19,6 +19,8 @@ public:
 
     void addMachine(const Machine &machine);
     [[nodiscard]] Machine machineForIndex(const QModelIndex &index) const;
+    void setMachineForIndex(const QModelIndex &index, const Machine &machine);
+    void remove(const QModelIndex &index);
 
     [[nodiscard]] QVariantList save() const;
     void restore(const QVariantList &machines);

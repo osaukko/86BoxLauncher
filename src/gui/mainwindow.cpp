@@ -46,6 +46,18 @@ void MainWindow::onAddMachineTriggered()
     }
 }
 
+void MainWindow::onEditMachineTriggered()
+{
+    MachineDialog dialog(this);
+    dialog.setWindowTitle(tr("Edit Machine"));
+    dialog.setMachine(mVmModel->machineForIndex(mVmView->currentIndex()));
+
+    if (dialog.exec() == MachineDialog::Accepted) {
+        mVmModel->setMachineForIndex(mVmView->currentIndex(), dialog.machine());
+        saveMachines();
+    }
+}
+
 void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
                                            const QItemSelection & /*deselected*/)
 {
@@ -54,6 +66,24 @@ void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
     mEditAction->setEnabled(gotSelection);
     mSettingsAction->setEnabled(gotSelection);
     mRemoveAction->setEnabled(gotSelection);
+}
+
+void MainWindow::onRemoveMachineTriggered()
+{
+    QMessageBox messageBox(
+        QMessageBox::Question,
+        tr("Removing Virtual Machine"),
+        tr("This function removes the selected virtual machine from the list. The virtual machine "
+           "files will not be deleted, but you may want to delete them yourself.\n\nContinue?"),
+        QMessageBox::Yes | QMessageBox::No,
+        this);
+    const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
+    messageBox.setDetailedText(tr("Virtual machine: %1\nSummary: %2\nConfig file: %3")
+                                   .arg(machine.name(), machine.summary(), machine.configFile()));
+    if (messageBox.exec() == QMessageBox::Yes) {
+        mVmModel->remove(mVmView->currentIndex());
+        saveMachines();
+    }
 }
 
 void MainWindow::onShowPreferencesTriggered()
@@ -136,7 +166,9 @@ void MainWindow::setupUi()
 
     // Connecting actions
     connect(mAddAction, &QAction::triggered, this, &MainWindow::onAddMachineTriggered);
+    connect(mEditAction, &QAction::triggered, this, &MainWindow::onEditMachineTriggered);
     connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::onShowPreferencesTriggered);
+    connect(mRemoveAction, &QAction::triggered, this, &MainWindow::onRemoveMachineTriggered);
     connect(mVmView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,

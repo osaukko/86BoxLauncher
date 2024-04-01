@@ -25,7 +25,9 @@ protected:
 
 private slots:
     void onAddMachineTriggered();
+    void onEditMachineTriggered();
     void onMachineSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void onRemoveMachineTriggered();
     void onShowPreferencesTriggered();
 
 private:

@@ -22,6 +22,27 @@ Machine MachineListModel::machineForIndex(const QModelIndex &index) const
     return mMachines.value(index.row());
 }
 
+void MachineListModel::setMachineForIndex(const QModelIndex &index, const Machine &machine)
+{
+    if (!index.isValid() || index.row() < 0 || index.row() >= mMachines.size()) {
+        qCritical() << "Invalid index:" << index;
+        return;
+    }
+    mMachines[index.row()] = machine;
+    emit dataChanged(index, index, {Qt::DecorationRole, Qt::DisplayRole, SummaryRole});
+}
+
+void MachineListModel::remove(const QModelIndex &index)
+{
+    if (!index.isValid() || index.row() < 0 || index.row() >= mMachines.size()) {
+        qCritical() << "Invalid index:" << index;
+        return;
+    }
+    beginRemoveRows({}, index.row(), index.row());
+    mMachines.removeAt(index.row());
+    endRemoveRows();
+}
+
 QVariantList MachineListModel::save() const
 {
     QVariantList machineList;
