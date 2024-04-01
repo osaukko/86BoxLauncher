@@ -23,6 +23,7 @@ public:
 private slots:
     void onAdvancedButtonToggled();
     void onButtonBoxAccepted();
+    void onConfigToolButtonClicked();
     void onIconToolButtonClicked();
 
 private:

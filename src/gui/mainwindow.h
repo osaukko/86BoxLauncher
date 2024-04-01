@@ -6,6 +6,7 @@
 
 class MachineListModel;
 class QHBoxLayout;
+class QItemSelection;
 class QListView;
 class QToolBar;
 class QToolButton;
@@ -23,11 +24,14 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void addMachine();
-    void showPreferences();
+    void onAddMachineTriggered();
+    void onMachineSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void onShowPreferencesTriggered();
 
 private:
     void setupUi();
+    void saveMachines();
+    void restoreMachines();
 
     // Settings manager
     Settings *mSettings{};

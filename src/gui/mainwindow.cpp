@@ -5,8 +5,11 @@
 
 #include "data/settings.h"
 
+#include <QFile>
 #include <QHBoxLayout>
+#include <QJsonDocument>
 #include <QListView>
+#include <QMessageBox>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -19,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
 {
     setupUi();
+    restoreMachines();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -27,7 +31,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QWidget::closeEvent(event);
 }
 
-void MainWindow::addMachine()
+void MainWindow::onAddMachineTriggered()
 {
     MachineDialog dialog(this);
     dialog.setWindowTitle(tr("Add Machine"));
@@ -38,10 +42,21 @@ void MainWindow::addMachine()
 
     if (dialog.exec() == MachineDialog::Accepted) {
         mVmModel->addMachine(dialog.machine());
+        saveMachines();
     }
 }
 
-void MainWindow::showPreferences()
+void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
+                                           const QItemSelection & /*deselected*/)
+{
+    const auto gotSelection = !selected.isEmpty();
+    mStartAction->setEnabled(gotSelection);
+    mEditAction->setEnabled(gotSelection);
+    mSettingsAction->setEnabled(gotSelection);
+    mRemoveAction->setEnabled(gotSelection);
+}
+
+void MainWindow::onShowPreferencesTriggered()
 {
     PreferencesDialog dialog(mSettings, this);
     dialog.exec();
@@ -62,9 +77,13 @@ void MainWindow::setupUi()
     // Virtual machines toolbar
     mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);
     mSettingsAction = new QAction(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
-    mEditAction = new QAction(tr("Edit Machine"));
+    mSettingsAction->setEnabled(false);
+    mEditAction = new QAction(QIcon::fromTheme("document-edit"), tr("Edit Machine"));
+    mEditAction->setEnabled(false);
     mStartAction = new QAction(QIcon::fromTheme("86box-start"), tr("Start"), this);
+    mStartAction->setEnabled(false);
     mRemoveAction = new QAction(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
+    mRemoveAction->setEnabled(false);
     mMachinesToolbar = new QToolBar(tr("Actions"), this);
     mMachinesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
     mMachinesToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -116,6 +135,48 @@ void MainWindow::setupUi()
     setLayout(mMainLayout);
 
     // Connecting actions
-    connect(mAddAction, &QAction::triggered, this, &MainWindow::addMachine);
-    connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::showPreferences);
+    connect(mAddAction, &QAction::triggered, this, &MainWindow::onAddMachineTriggered);
+    connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::onShowPreferencesTriggered);
+    connect(mVmView->selectionModel(),
+            &QItemSelectionModel::selectionChanged,
+            this,
+            &MainWindow::onMachineSelectionChanged);
+}
+
+void MainWindow::saveMachines()
+{
+    QFile file(Settings::configHome() + "/machines.json");
+    if (!file.open(QFile::WriteOnly)) {
+        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
+        return;
+    }
+    const auto json = QJsonDocument::fromVariant(mVmModel->save()).toJson(QJsonDocument::Indented);
+    if (file.write(json) != json.size()) {
+        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
+        return;
+    }
+}
+
+void MainWindow::restoreMachines()
+{
+    QFile file(Settings::configHome() + "/machines.json");
+    if (!file.exists()) {
+        return;
+    }
+
+    if (!file.open(QFile::ReadOnly)) {
+        QMessageBox::critical(this, tr("Could not restore machines"), file.errorString());
+        return;
+    }
+
+    QJsonParseError error;
+    const auto jsonDocument = QJsonDocument::fromJson(file.readAll(), &error);
+    if (error.error != QJsonParseError::NoError) {
+        QMessageBox::critical(this,
+                              tr("Could not restore machines"),
+                              tr("JSON error: %1").arg(error.errorString()));
+        return;
+    }
+
+    mVmModel->restore(jsonDocument.toVariant().toList());
 }

@@ -91,7 +91,7 @@ QVariant MachineListModel::headerData(int section, Qt::Orientation orientation, 
         }
         break;
     case Qt::Vertical:
-        return QString::number(section);
+        return QString::number(section + 1);
         break;
     }
 

@@ -18,6 +18,10 @@ MachineDialog::MachineDialog(QWidget *parent)
             &QPushButton::toggled,
             this,
             &MachineDialog::onAdvancedButtonToggled);
+    connect(mUi->configToolButton,
+            &QToolButton::clicked,
+            this,
+            &MachineDialog::onConfigToolButtonClicked);
     connect(mUi->iconToolButton,
             &QToolButton::clicked,
             this,
@@ -72,6 +76,20 @@ void MachineDialog::onButtonBoxAccepted()
     mMachine.setStartCommand(mUi->startCommandLineEdit->text());
     mMachine.setSettingsCommand(mUi->settingsCommandLineEdit->text());
     accept();
+}
+
+void MachineDialog::onConfigToolButtonClicked()
+{
+    QFileDialog fileDialog(this,
+                           tr("Select config file"),
+                           QFileInfo(mUi->configLineEdit->text()).absolutePath(),
+                           tr("Config file (*.cfg);;All files(*)"));
+    fileDialog.setFileMode(QFileDialog::AnyFile);
+    fileDialog.setAcceptMode(QFileDialog::AcceptOpen);
+    fileDialog.setDefaultSuffix("cfg");
+    if (fileDialog.exec() == QFileDialog::Accepted) {
+        mUi->configLineEdit->setText(fileDialog.selectedFiles().value(0));
+    }
 }
 
 void MachineDialog::onIconToolButtonClicked()
