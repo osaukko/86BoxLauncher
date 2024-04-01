@@ -59,9 +59,9 @@ void MachineDialog::setMachine(const Machine &machine)
 void MachineDialog::onAdvancedButtonToggled()
 {
     if (mUi->advancedPushButton->isChecked()) {
-        mUi->advancedPushButton->setIcon(QIcon::fromTheme("arrow-up"));
+        mUi->advancedPushButton->setIcon(QIcon::fromTheme("go-up"));
     } else {
-        mUi->advancedPushButton->setIcon(QIcon::fromTheme("arrow-down"));
+        mUi->advancedPushButton->setIcon(QIcon::fromTheme("go-down"));
     }
     mUi->commandsGroupBox->setVisible(mUi->advancedPushButton->isChecked());
 }
