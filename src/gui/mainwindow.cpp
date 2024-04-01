@@ -5,6 +5,7 @@
 
 #include "data/settings.h"
 
+#include <QDir>
 #include <QFile>
 #include <QHBoxLayout>
 #include <QJsonDocument>
@@ -78,8 +79,9 @@ void MainWindow::onRemoveMachineTriggered()
         QMessageBox::Yes | QMessageBox::No,
         this);
     const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
-    messageBox.setDetailedText(tr("Virtual machine: %1\nSummary: %2\nConfig file: %3")
-                                   .arg(machine.name(), machine.summary(), machine.configFile()));
+    messageBox.setDetailedText(
+        tr("Virtual machine: %1\nSummary: %2\nConfig file: %3")
+            .arg(machine.name(), machine.summary(), QDir::toNativeSeparators(machine.configFile())));
     if (messageBox.exec() == QMessageBox::Yes) {
         mVmModel->remove(mVmView->currentIndex());
         saveMachines();
