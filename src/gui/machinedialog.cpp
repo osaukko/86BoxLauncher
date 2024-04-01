@@ -80,9 +80,15 @@ void MachineDialog::onButtonBoxAccepted()
 
 void MachineDialog::onConfigToolButtonClicked()
 {
+    auto directory = QFileInfo(QDir::fromNativeSeparators(mUi->configLineEdit->text()))
+                         .absoluteFilePath();
+    if (directory.isEmpty()) {
+        // Sets the default file name
+        directory = "86box.cfg";
+    }
     QFileDialog fileDialog(this,
                            tr("Select config file"),
-                           QFileInfo(QDir::fromNativeSeparators(mUi->configLineEdit->text())).absolutePath(),
+                           directory,
                            tr("Config file (*.cfg);;All files(*)"));
     fileDialog.setFileMode(QFileDialog::AnyFile);
     fileDialog.setAcceptMode(QFileDialog::AcceptOpen);

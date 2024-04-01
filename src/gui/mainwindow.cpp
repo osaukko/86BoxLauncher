@@ -1,9 +1,10 @@
 #include "mainwindow.h"
 #include "machinedialog.h"
-#include "mvc/machinelistmodel.h"
 #include "preferencesdialog.h"
 
 #include "data/settings.h"
+#include "mvc/machinelistmodel.h"
+#include "utils/formatter.h"
 
 #include <QDir>
 #include <QFile>
@@ -11,13 +12,10 @@
 #include <QJsonDocument>
 #include <QListView>
 #include <QMessageBox>
+#include <QProcess>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
-
-namespace {
-const QSize machine_icon_size = {32, 32};
-} // namespace
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
@@ -42,8 +40,15 @@ void MainWindow::onAddMachineTriggered()
     dialog.setMachine(newMachine);
 
     if (dialog.exec() == MachineDialog::Accepted) {
-        mVmModel->addMachine(dialog.machine());
+        newMachine = dialog.machine();
+        mVmModel->addMachine(newMachine);
         saveMachines();
+
+        // Automatically open settings dialog if config file does not exist
+        if (!QFile::exists(newMachine.configFile())) {
+            mVmView->setCurrentIndex(mVmModel->index(mVmModel->rowCount({}) - 1));
+            onSettingsTriggered();
+        }
     }
 }
 
@@ -88,10 +93,91 @@ void MainWindow::onRemoveMachineTriggered()
     }
 }
 
+void MainWindow::onSettingsTriggered()
+{
+    const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
+    auto command = machine.settingsCommand();
+    if (command.isEmpty()) {
+        command = mSettings->settingsCommand();
+    }
+    runCommand(command, machine);
+}
+
 void MainWindow::onShowPreferencesTriggered()
 {
     PreferencesDialog dialog(mSettings, this);
     dialog.exec();
+}
+
+void MainWindow::onStartTriggered()
+{
+    const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
+    auto command = machine.startCommand();
+    if (command.isEmpty()) {
+        command = mSettings->startCommand();
+    }
+    runCommand(command, machine);
+}
+
+void MainWindow::restoreMachines()
+{
+    QFile file(Settings::configHome() + "/machines.json");
+    if (!file.exists()) {
+        return;
+    }
+
+    if (!file.open(QFile::ReadOnly)) {
+        QMessageBox::critical(this, tr("Could not restore machines"), file.errorString());
+        return;
+    }
+
+    QJsonParseError error;
+    const auto jsonDocument = QJsonDocument::fromJson(file.readAll(), &error);
+    if (error.error != QJsonParseError::NoError) {
+        QMessageBox::critical(this,
+                              tr("Could not restore machines"),
+                              tr("JSON error: %1").arg(error.errorString()));
+        return;
+    }
+
+    mVmModel->restore(jsonDocument.toVariant().toList());
+}
+
+void MainWindow::runCommand(const QString &command, const Machine &machine)
+{
+    bool ok = false;
+    const auto formattedCommand = Formatter::format(command, variablesForMachine(machine), &ok);
+    if (!ok || formattedCommand.isEmpty()) {
+        QMessageBox::critical(
+            this,
+            tr("Error with settings command"),
+            tr("Could not format the settings command. Please check your settings."));
+        return;
+    }
+    auto arguments = QProcess::splitCommand(formattedCommand);
+    auto program = arguments.takeFirst();
+
+    QProcess process(this);
+    process.setProgram(program);
+    process.setArguments(arguments);
+    process.setWorkingDirectory(QFileInfo(program).absolutePath());
+    if (!process.startDetached()) {
+        QMessageBox::critical(this, tr("Could not start the program"), process.errorString());
+    }
+}
+
+void MainWindow::saveMachines()
+{
+    QFile file(Settings::configHome() + "/machines.json");
+    if (!file.open(QFile::WriteOnly)) {
+        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
+        return;
+    }
+    const auto json = QJsonDocument::fromVariant(mVmModel->save()).toJson(QJsonDocument::Indented);
+    if (file.write(json) != json.size()) {
+        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
+        return;
+    }
 }
 
 void MainWindow::setupUi()
@@ -99,6 +185,8 @@ void MainWindow::setupUi()
     constexpr auto initialWidth = 640;
     constexpr auto initialHeight = 480;
     constexpr auto toolbarIconSize = 48;
+    constexpr QSize machine_icon_size = {32, 32};
+
     resize({initialWidth, initialHeight});
     setWindowIcon(QIcon::fromTheme("86boxlauncher"));
 
@@ -171,46 +259,18 @@ void MainWindow::setupUi()
     connect(mEditAction, &QAction::triggered, this, &MainWindow::onEditMachineTriggered);
     connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::onShowPreferencesTriggered);
     connect(mRemoveAction, &QAction::triggered, this, &MainWindow::onRemoveMachineTriggered);
+    connect(mSettingsAction, &QAction::triggered, this, &MainWindow::onSettingsTriggered);
+    connect(mStartAction, &QAction::triggered, this, &MainWindow::onStartTriggered);
     connect(mVmView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
             &MainWindow::onMachineSelectionChanged);
 }
 
-void MainWindow::saveMachines()
+QHash<QString, QString> MainWindow::variablesForMachine(const Machine &machine) const
 {
-    QFile file(Settings::configHome() + "/machines.json");
-    if (!file.open(QFile::WriteOnly)) {
-        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
-        return;
-    }
-    const auto json = QJsonDocument::fromVariant(mVmModel->save()).toJson(QJsonDocument::Indented);
-    if (file.write(json) != json.size()) {
-        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
-        return;
-    }
-}
-
-void MainWindow::restoreMachines()
-{
-    QFile file(Settings::configHome() + "/machines.json");
-    if (!file.exists()) {
-        return;
-    }
-
-    if (!file.open(QFile::ReadOnly)) {
-        QMessageBox::critical(this, tr("Could not restore machines"), file.errorString());
-        return;
-    }
-
-    QJsonParseError error;
-    const auto jsonDocument = QJsonDocument::fromJson(file.readAll(), &error);
-    if (error.error != QJsonParseError::NoError) {
-        QMessageBox::critical(this,
-                              tr("Could not restore machines"),
-                              tr("JSON error: %1").arg(error.errorString()));
-        return;
-    }
-
-    mVmModel->restore(jsonDocument.toVariant().toList());
+    // Adding double quotes to ensure paths with spaces work correctly.
+    const auto emulator = QLatin1Char('"') + mSettings->emulatorBinary() + QLatin1Char('"');
+    const auto config = QLatin1Char('"') + machine.configFile() + QLatin1Char('"');
+    return {{"86box", emulator}, {"config", config}};
 }

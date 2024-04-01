@@ -4,6 +4,7 @@
 #include <QMenu>
 #include <QWidget>
 
+class Machine;
 class MachineListModel;
 class QHBoxLayout;
 class QItemSelection;
@@ -28,12 +29,16 @@ private slots:
     void onEditMachineTriggered();
     void onMachineSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void onRemoveMachineTriggered();
+    void onSettingsTriggered();
     void onShowPreferencesTriggered();
+    void onStartTriggered();
 
 private:
-    void setupUi();
-    void saveMachines();
     void restoreMachines();
+    void runCommand(const QString &command, const Machine &machine);
+    void saveMachines();
+    void setupUi();
+    [[nodiscard]] QHash<QString, QString> variablesForMachine(const Machine &machine) const;
 
     // Settings manager
     Settings *mSettings{};
