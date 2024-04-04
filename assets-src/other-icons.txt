@@ -1,0 +1,9 @@
+dialog-cancel
+dialog-ok
+document-edit
+document-open
+document-revert
+edit-clear
+edit-clear-locationbar-rtl
+go-down
+go-up
