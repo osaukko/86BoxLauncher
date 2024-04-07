@@ -2,6 +2,12 @@
 
 #include <QDebug>
 #include <QIcon>
+#include <QJsonDocument>
+#include <QMimeData>
+
+namespace {
+const auto jsonMimeType = "application/json";
+} // namespace
 
 MachineListModel::MachineListModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -117,4 +123,128 @@ QVariant MachineListModel::headerData(int section, Qt::Orientation orientation, 
     }
 
     return {};
+}
+
+QStringList MachineListModel::mimeTypes() const
+{
+    return {jsonMimeType};
+}
+
+QMimeData *MachineListModel::mimeData(const QModelIndexList &indexes) const
+{
+    if (indexes.isEmpty()) {
+        return {};
+    }
+
+    QVariantList list;
+    for (const auto &index : indexes) {
+        if (index.isValid()) {
+            list.append(machineForIndex(index).save());
+        }
+    }
+
+    const auto json = QJsonDocument::fromVariant(list).toJson(QJsonDocument::Compact);
+    auto *mimeData = new QMimeData;
+    mimeData->setData(jsonMimeType, json);
+    return mimeData;
+}
+
+bool MachineListModel::canDropMimeData(const QMimeData *data,
+                                       Qt::DropAction action,
+                                       int row,
+                                       int column,
+                                       const QModelIndex &parent) const
+{
+    // Check that we have valid data and action
+    if (data == nullptr || !supportedDropActions().testFlag(action)) {
+        return false;
+    }
+
+    // Check that we have correct format
+    if (!data->hasFormat(jsonMimeType)) {
+        return false;
+    }
+
+    // Dropping over existing item, column and row must be -1
+    if (parent.isValid()) {
+        return column == -1 && row == -1;
+    }
+
+    // Dropping as last item?
+    if (column == -1 && row == -1) {
+        return true;
+    }
+
+    // Dropping outside of existing items
+    return column == 0 && row >= 0 && row <= mMachines.size();
+}
+
+bool MachineListModel::dropMimeData(
+    const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (!canDropMimeData(data, action, row, column, parent)) {
+        return false;
+    }
+
+    // Decode JSON data
+    const auto json = data->data(jsonMimeType);
+    QJsonParseError error{};
+    const auto jsonDoc = QJsonDocument::fromJson(json, &error);
+    if (error.error != QJsonParseError::NoError) {
+        qCritical() << "Drop mime data got invalid JSON:" << error.errorString();
+        return false;
+    }
+
+    // Decode machines
+    const auto machinesVariantList = jsonDoc.toVariant().toList();
+    QList<Machine> machines;
+    for (const auto &machineVariant : machinesVariantList) {
+        machines.append(Machine(machineVariant.toMap()));
+    }
+
+    // Find insert position
+    int first = 0;
+    if (row != -1) {
+        first = row;
+    } else if (parent.isValid()) {
+        first = parent.row();
+    } else {
+        first = static_cast<int>(mMachines.size());
+    }
+
+    // Insert machines
+    beginInsertRows({}, first, first + static_cast<int>(machines.size()) - 1);
+    for (const auto &machine : machines) {
+        mMachines.insert(first, machine);
+        ++first;
+    }
+    endInsertRows();
+
+    return true;
+}
+
+Qt::DropActions MachineListModel::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+bool MachineListModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if (parent.isValid() || count <= 0 || row < 0 || (row + count) > mMachines.size()) {
+        return false;
+    }
+    beginRemoveRows({}, row, row + count - 1);
+    auto it = mMachines.constBegin() + row;
+    mMachines.erase(it, it + count);
+    endRemoveRows();
+    return true;
+}
+
+Qt::ItemFlags MachineListModel::flags(const QModelIndex &index) const
+{
+    auto flags = QAbstractListModel::flags(index) | Qt::ItemIsDropEnabled;
+    if (index.isValid()) {
+        flags.setFlag(Qt::ItemIsDragEnabled);
+    }
+    return flags;
 }

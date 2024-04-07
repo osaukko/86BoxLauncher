@@ -32,6 +32,21 @@ public:
     [[nodiscard]] QVariant headerData(int section,
                                       Qt::Orientation orientation,
                                       int role) const override;
+    [[nodiscard]] QStringList mimeTypes() const override;
+    [[nodiscard]] QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    [[nodiscard]] bool canDropMimeData(const QMimeData *data,
+                                       Qt::DropAction action,
+                                       int row,
+                                       int column,
+                                       const QModelIndex &parent) const override;
+    [[nodiscard]] bool dropMimeData(const QMimeData *data,
+                                    Qt::DropAction action,
+                                    int row,
+                                    int column,
+                                    const QModelIndex &parent) override;
+    [[nodiscard]] Qt::DropActions supportedDropActions() const override;
+    [[nodiscard]] bool removeRows(int row, int count, const QModelIndex &parent) override;
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
     QList<Machine> mMachines;

@@ -243,6 +243,7 @@ void MainWindow::setupUi()
     mVmView = new QListView;
     mVmView->setIconSize(machine_icon_size);
     mVmView->setModel(mVmModel);
+    mVmView->setDragDropMode(QListView::InternalMove);
 
     // Layout for virtual machines
     mVmLayout = new QHBoxLayout;
