@@ -238,7 +238,11 @@ bool MachineListModel::removeRows(int row, int count, const QModelIndex &parent)
         return false;
     }
     beginRemoveRows({}, row, row + count - 1);
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+    auto it = mMachines.begin() + row;
+#else
     auto it = mMachines.constBegin() + row;
+#endif
     mMachines.erase(it, it + count);
     endRemoveRows();
     emit modelChanged();

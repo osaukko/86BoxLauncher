@@ -2,6 +2,7 @@ set(CMAKE_AUTOMOC ON)
 
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-add_library(mvc STATIC machinelistmodel.cpp machinelistmodel.h)
+add_library(mvc STATIC machinedelegate.cpp machinedelegate.h
+                       machinelistmodel.cpp machinelistmodel.h)
 
 target_link_libraries(mvc PUBLIC Qt${QT_VERSION_MAJOR}::Widgets)

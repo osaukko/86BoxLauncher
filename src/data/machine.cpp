@@ -31,6 +31,7 @@ void MachineData::loadIcon()
 {
     switch (iconType) {
     case Machine::NoIcon:
+        icon = {};
         return;
 
     case Machine::IconFromTheme:

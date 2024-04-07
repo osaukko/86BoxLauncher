@@ -3,6 +3,7 @@
 #include "preferencesdialog.h"
 
 #include "data/settings.h"
+#include "mvc/machinedelegate.h"
 #include "mvc/machinelistmodel.h"
 #include "utils/formatter.h"
 
@@ -152,7 +153,7 @@ void MainWindow::restoreMachines()
         return;
     }
 
-    QJsonParseError error;
+    QJsonParseError error{};
     const auto jsonDocument = QJsonDocument::fromJson(file.readAll(), &error);
     if (error.error != QJsonParseError::NoError) {
         QMessageBox::critical(this,
@@ -251,6 +252,7 @@ void MainWindow::setupUi()
     mVmView->setIconSize(machine_icon_size);
     mVmView->setModel(mVmModel);
     mVmView->setDragDropMode(QListView::InternalMove);
+    mVmView->setItemDelegateForColumn(0, new MachineDelegate(mVmView));
 
     // Layout for virtual machines
     mVmLayout = new QHBoxLayout;
