@@ -21,6 +21,7 @@ void MachineListModel::addMachine(const Machine &machine)
     beginInsertRows({}, row, row);
     mMachines.append(machine);
     endInsertRows();
+    emit modelChanged();
 }
 
 Machine MachineListModel::machineForIndex(const QModelIndex &index) const
@@ -36,6 +37,7 @@ void MachineListModel::setMachineForIndex(const QModelIndex &index, const Machin
     }
     mMachines[index.row()] = machine;
     emit dataChanged(index, index, {Qt::DecorationRole, Qt::DisplayRole, SummaryRole});
+    emit modelChanged();
 }
 
 void MachineListModel::remove(const QModelIndex &index)
@@ -47,6 +49,7 @@ void MachineListModel::remove(const QModelIndex &index)
     beginRemoveRows({}, index.row(), index.row());
     mMachines.removeAt(index.row());
     endRemoveRows();
+    emit modelChanged();
 }
 
 QVariantList MachineListModel::save() const
@@ -219,6 +222,7 @@ bool MachineListModel::dropMimeData(
         ++first;
     }
     endInsertRows();
+    emit modelChanged();
 
     return true;
 }
@@ -237,6 +241,7 @@ bool MachineListModel::removeRows(int row, int count, const QModelIndex &parent)
     auto it = mMachines.constBegin() + row;
     mMachines.erase(it, it + count);
     endRemoveRows();
+    emit modelChanged();
     return true;
 }
 

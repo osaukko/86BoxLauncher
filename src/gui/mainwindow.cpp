@@ -13,15 +13,24 @@
 #include <QListView>
 #include <QMessageBox>
 #include <QProcess>
+#include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
+    , mSaveTimer{new QTimer(this)}
 {
     setupUi();
     restoreMachines();
+
+    // We use a timer so that we can save model content when all changes to the model have been made
+    const auto saveAfterNoChangesForMsec = 200;
+    mSaveTimer->setSingleShot(true);
+    mSaveTimer->setInterval(saveAfterNoChangesForMsec);
+    connect(mVmModel, &MachineListModel::modelChanged, mSaveTimer, qOverload<>(&QTimer::start));
+    connect(mSaveTimer, &QTimer::timeout, this, &MainWindow::saveMachines);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -42,7 +51,6 @@ void MainWindow::onAddMachineTriggered()
     if (dialog.exec() == MachineDialog::Accepted) {
         newMachine = dialog.machine();
         mVmModel->addMachine(newMachine);
-        saveMachines();
 
         // Automatically open settings dialog if config file does not exist
         if (!QFile::exists(newMachine.configFile())) {
@@ -60,7 +68,6 @@ void MainWindow::onEditMachineTriggered()
 
     if (dialog.exec() == MachineDialog::Accepted) {
         mVmModel->setMachineForIndex(mVmView->currentIndex(), dialog.machine());
-        saveMachines();
     }
 }
 
@@ -89,7 +96,6 @@ void MainWindow::onRemoveMachineTriggered()
             .arg(machine.name(), machine.summary(), QDir::toNativeSeparators(machine.configFile())));
     if (messageBox.exec() == QMessageBox::Yes) {
         mVmModel->remove(mVmView->currentIndex());
-        saveMachines();
     }
 }
 
@@ -117,6 +123,21 @@ void MainWindow::onStartTriggered()
         command = mSettings->startCommand();
     }
     runCommand(command, machine);
+}
+
+void MainWindow::saveMachines()
+{
+    QFile file(Settings::configHome() + "/machines.json");
+    if (!file.open(QFile::WriteOnly)) {
+        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
+        return;
+    }
+    const auto json = QJsonDocument::fromVariant(mVmModel->save()).toJson(QJsonDocument::Indented);
+    if (file.write(json) != json.size()) {
+        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
+        return;
+    }
+    qDebug() << "Machines saved";
 }
 
 void MainWindow::restoreMachines()
@@ -163,20 +184,6 @@ void MainWindow::runCommand(const QString &command, const Machine &machine)
     process.setWorkingDirectory(QFileInfo(program).absolutePath());
     if (!process.startDetached()) {
         QMessageBox::critical(this, tr("Could not start the program"), process.errorString());
-    }
-}
-
-void MainWindow::saveMachines()
-{
-    QFile file(Settings::configHome() + "/machines.json");
-    if (!file.open(QFile::WriteOnly)) {
-        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
-        return;
-    }
-    const auto json = QJsonDocument::fromVariant(mVmModel->save()).toJson(QJsonDocument::Indented);
-    if (file.write(json) != json.size()) {
-        QMessageBox::critical(this, tr("Could not save machines"), file.errorString());
-        return;
     }
 }
 

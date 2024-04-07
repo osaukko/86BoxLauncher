@@ -32,11 +32,11 @@ private slots:
     void onSettingsTriggered();
     void onShowPreferencesTriggered();
     void onStartTriggered();
+    void saveMachines();
 
 private:
     void restoreMachines();
     void runCommand(const QString &command, const Machine &machine);
-    void saveMachines();
     void setupUi();
     [[nodiscard]] QHash<QString, QString> variablesForMachine(const Machine &machine) const;
 
@@ -69,6 +69,9 @@ private:
 
     // Model for virtual machines
     MachineListModel *mVmModel{};
+
+    // Timer for saving changes on the model
+    QTimer *mSaveTimer;
 };
 
 #endif // MAINWINDOW_H

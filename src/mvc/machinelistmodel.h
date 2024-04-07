@@ -25,6 +25,9 @@ public:
     [[nodiscard]] QVariantList save() const;
     void restore(const QVariantList &machines);
 
+signals:
+    void modelChanged();
+
     // QAbstractItemModel interface
 public:
     [[nodiscard]] int rowCount(const QModelIndex &parent) const override;
