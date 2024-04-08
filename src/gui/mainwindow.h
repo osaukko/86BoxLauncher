@@ -6,10 +6,11 @@
 
 class Machine;
 class MachineListModel;
+class QAction;
+class QFrame;
 class QHBoxLayout;
 class QItemSelection;
 class QListView;
-class QToolBar;
 class QToolButton;
 class QVBoxLayout;
 class Settings;
@@ -25,16 +26,19 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private slots:
-    void onAddMachineTriggered();
-    void onEditMachineTriggered();
+    void onAddClicked();
+    void onEditClicked();
     void onMachineSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    void onRemoveMachineTriggered();
-    void onSettingsTriggered();
-    void onShowPreferencesTriggered();
-    void onStartTriggered();
+    void onPreferencesClicked();
+    void onRemoveClicked();
+    void onSettingsClicked();
+    void onStartClicked();
     void saveMachines();
 
 private:
+    static QToolButton *createToolButton(const QIcon &icon,
+                                         const QString &text,
+                                         QWidget *parent = nullptr);
     void restoreMachines();
     void runCommand(const QString &command, const Machine &machine);
     void setupUi();
@@ -45,24 +49,19 @@ private:
 
     // Layouts
     QVBoxLayout *mMainLayout{};
-    QHBoxLayout *mToolbarLayout{};
-    QHBoxLayout *mVmLayout{};
+    QHBoxLayout *mToolBarLayout{};
 
-    // Virtual machines toolbar
-    QAction *mAddAction{};
-    QAction *mRemoveAction{};
-    QAction *mSettingsAction{};
-    QAction *mEditAction{};
+    // Tool bar widgets
+    QToolButton *mAddButton{};
+    QToolButton *mStartButton{};
     QToolButton *mSettingsButton{};
-    QAction *mStartAction{};
-    QToolBar *mMachinesToolbar{};
+    QFrame *mSeparatorLine{};
+    QToolButton *mRemoveButton{};
+    QToolButton *mPreferencesButton{};
 
-    // Preferences toolbar
-    QAction *mPreferencesAction{};
-    QToolBar *mPreferencesToolbar{};
-
-    // Menus
+    // Settings menu
     QMenu *mSettingsMenu{};
+    QAction *mEditAction{};
 
     // List view for virtual machines
     QListView *mVmView{};

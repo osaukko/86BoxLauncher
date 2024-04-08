@@ -34,7 +34,6 @@ void MachineDelegate::paint(QPainter *painter,
     painter->setClipRect(styleOption.rect);
 
     // Draw background?
-    qDebug() << styleOption.text << styleOption.state;
     const auto selected = styleOption.state.testFlag(QStyle::State_Selected);
     const auto mouseOver = styleOption.state.testFlag(QStyle::State_MouseOver);
     if (selected || mouseOver) {

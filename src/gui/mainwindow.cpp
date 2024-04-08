@@ -40,7 +40,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QWidget::closeEvent(event);
 }
 
-void MainWindow::onAddMachineTriggered()
+void MainWindow::onAddClicked()
 {
     MachineDialog dialog(this);
     dialog.setWindowTitle(tr("Add Machine"));
@@ -56,12 +56,12 @@ void MainWindow::onAddMachineTriggered()
         // Automatically open settings dialog if config file does not exist
         if (!QFile::exists(newMachine.configFile())) {
             mVmView->setCurrentIndex(mVmModel->index(mVmModel->rowCount({}) - 1));
-            onSettingsTriggered();
+            onSettingsClicked();
         }
     }
 }
 
-void MainWindow::onEditMachineTriggered()
+void MainWindow::onEditClicked()
 {
     MachineDialog dialog(this);
     dialog.setWindowTitle(tr("Edit Machine"));
@@ -76,13 +76,19 @@ void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
                                            const QItemSelection & /*deselected*/)
 {
     const auto gotSelection = !selected.isEmpty();
-    mStartAction->setEnabled(gotSelection);
+    mStartButton->setEnabled(gotSelection);
     mEditAction->setEnabled(gotSelection);
-    mSettingsAction->setEnabled(gotSelection);
-    mRemoveAction->setEnabled(gotSelection);
+    mSettingsButton->setEnabled(gotSelection);
+    mRemoveButton->setEnabled(gotSelection);
 }
 
-void MainWindow::onRemoveMachineTriggered()
+void MainWindow::onPreferencesClicked()
+{
+    PreferencesDialog dialog(mSettings, this);
+    dialog.exec();
+}
+
+void MainWindow::onRemoveClicked()
 {
     QMessageBox messageBox(
         QMessageBox::Question,
@@ -100,7 +106,7 @@ void MainWindow::onRemoveMachineTriggered()
     }
 }
 
-void MainWindow::onSettingsTriggered()
+void MainWindow::onSettingsClicked()
 {
     const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
     auto command = machine.settingsCommand();
@@ -110,13 +116,7 @@ void MainWindow::onSettingsTriggered()
     runCommand(command, machine);
 }
 
-void MainWindow::onShowPreferencesTriggered()
-{
-    PreferencesDialog dialog(mSettings, this);
-    dialog.exec();
-}
-
-void MainWindow::onStartTriggered()
+void MainWindow::onStartClicked()
 {
     const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
     auto command = machine.startCommand();
@@ -139,6 +139,18 @@ void MainWindow::saveMachines()
         return;
     }
     qDebug() << "Machines saved";
+}
+
+QToolButton *MainWindow::createToolButton(const QIcon &icon, const QString &text, QWidget *parent)
+{
+    constexpr auto toolbarIconSize = 48;
+    auto *button = new QToolButton(parent);
+    button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    button->setAutoRaise(true);
+    button->setIconSize({toolbarIconSize, toolbarIconSize});
+    button->setIcon(icon);
+    button->setText(text);
+    return button;
 }
 
 void MainWindow::restoreMachines()
@@ -192,7 +204,6 @@ void MainWindow::setupUi()
 {
     constexpr auto initialWidth = 640;
     constexpr auto initialHeight = 480;
-    constexpr auto toolbarIconSize = 48;
     constexpr QSize machine_icon_size = {32, 32};
 
     resize({initialWidth, initialHeight});
@@ -202,49 +213,37 @@ void MainWindow::setupUi()
     mSettings = new Settings(this);
     restoreGeometry(mSettings->mainWindowGeometry());
 
-    // Virtual machines toolbar
-    mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);
-    mSettingsAction = new QAction(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
-    mSettingsAction->setEnabled(false);
+    // Toolbar widgets
+    mAddButton = createToolButton(QIcon::fromTheme("86box-new"), tr("Add"), this);
+    mStartButton = createToolButton(QIcon::fromTheme("86box-start"), tr("Start"), this);
+    mSettingsButton = createToolButton(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
+    mSeparatorLine = new QFrame(this);
+    mRemoveButton = createToolButton(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
+    mPreferencesButton = createToolButton(QIcon::fromTheme("86box-preferences"),
+                                          tr("Preferences"),
+                                          this);
+    mStartButton->setEnabled(false);
+    mSettingsButton->setEnabled(false);
+    mSeparatorLine->setFrameShape(QFrame::VLine);
+    mRemoveButton->setEnabled(false);
+
+    // Add menu for settings button
     mEditAction = new QAction(QIcon::fromTheme("document-edit"), tr("Edit Machine"));
     mEditAction->setEnabled(false);
-    mStartAction = new QAction(QIcon::fromTheme("86box-start"), tr("Start"), this);
-    mStartAction->setEnabled(false);
-    mRemoveAction = new QAction(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
-    mRemoveAction->setEnabled(false);
-    mMachinesToolbar = new QToolBar(tr("Actions"), this);
-    mMachinesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
-    mMachinesToolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    mMachinesToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    mMachinesToolbar->layout()->setContentsMargins({});
-    mMachinesToolbar->addAction(mAddAction);
-    mMachinesToolbar->addAction(mStartAction);
-    mSettingsButton = new QToolButton(mMachinesToolbar);
-    mSettingsButton->setDefaultAction(mSettingsAction);
-    mSettingsButton->setToolButtonStyle(mMachinesToolbar->toolButtonStyle());
-    mSettingsButton->setPopupMode(QToolButton::MenuButtonPopup);
     mSettingsMenu = new QMenu(mSettingsButton);
     mSettingsMenu->addAction(mEditAction);
+    mSettingsButton->setPopupMode(QToolButton::MenuButtonPopup);
     mSettingsButton->setMenu(mSettingsMenu);
-    mMachinesToolbar->addWidget(mSettingsButton);
-    mMachinesToolbar->addSeparator();
-    mMachinesToolbar->addAction(mRemoveAction);
-    mMachinesToolbar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
-    // Preferences toolbar
-    mPreferencesAction = new QAction(QIcon::fromTheme("86box-preferences"), tr("Preferences"), this);
-    mPreferencesToolbar = new QToolBar(tr("Preferences"), this);
-    mPreferencesToolbar->layout()->setContentsMargins({});
-    mPreferencesToolbar->setIconSize({toolbarIconSize, toolbarIconSize});
-    mPreferencesToolbar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    mPreferencesToolbar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    mPreferencesToolbar->addAction(mPreferencesAction);
-
-    // Layout for toolbars
-    mToolbarLayout = new QHBoxLayout;
-    mToolbarLayout->addWidget(mMachinesToolbar);
-    mToolbarLayout->addStretch();
-    mToolbarLayout->addWidget(mPreferencesToolbar);
+    // Layout for tool bar
+    mToolBarLayout = new QHBoxLayout;
+    mToolBarLayout->addWidget(mAddButton);
+    mToolBarLayout->addWidget(mStartButton);
+    mToolBarLayout->addWidget(mSettingsButton);
+    mToolBarLayout->addWidget(mSeparatorLine);
+    mToolBarLayout->addWidget(mRemoveButton);
+    mToolBarLayout->addStretch();
+    mToolBarLayout->addWidget(mPreferencesButton);
 
     // List view and model for virtual machines
     mVmModel = new MachineListModel(this);
@@ -254,23 +253,19 @@ void MainWindow::setupUi()
     mVmView->setDragDropMode(QListView::InternalMove);
     mVmView->setItemDelegateForColumn(0, new MachineDelegate(mVmView));
 
-    // Layout for virtual machines
-    mVmLayout = new QHBoxLayout;
-    mVmLayout->addWidget(mVmView);
-
     // Main layout
     mMainLayout = new QVBoxLayout;
-    mMainLayout->addLayout(mToolbarLayout);
-    mMainLayout->addLayout(mVmLayout);
+    mMainLayout->addLayout(mToolBarLayout);
+    mMainLayout->addWidget(mVmView);
     setLayout(mMainLayout);
 
     // Connecting actions
-    connect(mAddAction, &QAction::triggered, this, &MainWindow::onAddMachineTriggered);
-    connect(mEditAction, &QAction::triggered, this, &MainWindow::onEditMachineTriggered);
-    connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::onShowPreferencesTriggered);
-    connect(mRemoveAction, &QAction::triggered, this, &MainWindow::onRemoveMachineTriggered);
-    connect(mSettingsAction, &QAction::triggered, this, &MainWindow::onSettingsTriggered);
-    connect(mStartAction, &QAction::triggered, this, &MainWindow::onStartTriggered);
+    connect(mAddButton, &QToolButton::clicked, this, &MainWindow::onAddClicked);
+    connect(mEditAction, &QAction::triggered, this, &MainWindow::onEditClicked);
+    connect(mPreferencesButton, &QToolButton::clicked, this, &MainWindow::onPreferencesClicked);
+    connect(mRemoveButton, &QToolButton::clicked, this, &MainWindow::onRemoveClicked);
+    connect(mSettingsButton, &QToolButton::clicked, this, &MainWindow::onSettingsClicked);
+    connect(mStartButton, &QToolButton::clicked, this, &MainWindow::onStartClicked);
     connect(mVmView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
