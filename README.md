@@ -1,7 +1,7 @@
 # 86BoxLauncher
 The 86BoxLauncher is a configuration manager and launcher for the [86Box][86box] emulator.
 
-<img src="docs/arch-linux-kde-plasma-6.png" alt="86BoxLauncher running on Arch Linux in KDE Plasma 6" style="zoom:50%;" />
+<img src="docs/arch-linux-kde-plasma-6.png" alt="86BoxLauncher running on Arch Linux in KDE Plasma 6" width="50%" />
 
 ## Building requirements
 
