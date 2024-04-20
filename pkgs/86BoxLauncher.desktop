@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=86Box Launcher
+GenericName=Manager and Launcher for 86Box
+Comment=Configuration manager and launcher for the 86Box emulator
+Icon=86boxlauncher
+Exec=86BoxLauncher
+Terminal=false
+Categories=System;Emulator;

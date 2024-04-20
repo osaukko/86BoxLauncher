@@ -9,6 +9,9 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Copying icons to the build folder lets you see them when running a project
+# during development.
+option(COPY_ICONS_TO_BUILD_DIR "Copy icons to the build directory" ON)
 option(BUILD_TESTS "Build unit tests" OFF)
 option(ENABLE_ASAN "Build with AddressSanitizer" OFF)
 

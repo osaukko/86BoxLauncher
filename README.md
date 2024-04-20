@@ -1,11 +1,29 @@
 # 86BoxLauncher
-The 86BoxLauncher is a graphical user interface for managing various [86Box][86box] setups.
+The 86BoxLauncher is a configuration manager and launcher for the [86Box][86box] emulator.
+
+<img src="docs/arch-linux-kde-plasma-6.png" alt="86BoxLauncher running on Arch Linux in KDE Plasma 6" style="zoom:50%;" />
 
 ## Building requirements
 
 * C++17 compiler or newer
-* CMake 3.12 or newer
+* CMake 3.13 or newer
 * Qt 5 or Qt 6
+
+### Getting started
+
+The fastest way to get started is to install the Qt development environment and open the `CMakeList.txt` file at the project's root into Qt Creator. Compiling and starting the application should work out of the box.
+
+Building from the command line using CMake, you can tell which Qt version to use by providing the path to the QMake executable with the `QT_QMAKE_EXECUTABLE` variable.
+
+Example:
+
+```bash
+cd 86boxlauncher-srcdir
+cmake -B build -DQT_QMAKE_EXECUTABLE=$(which qmake6)
+cmake --build build
+cd build/src
+./86BoxLauncher
+```
 
 ## Licensing
 

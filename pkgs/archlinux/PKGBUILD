@@ -1,0 +1,39 @@
+# Maintainer: Ossi Saukko <osaukko@gmail.com>
+pkgname=(86box-launcher)
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Configuration manager and launcher for the 86Box emulator"
+arch=('aarch64' 'armv7h' 'pentium4' 'x86_64')
+url="https://github.com/osaukko/86BoxLauncher"
+license=('GPL-2.0-or-later')
+depends=(
+    'gcc-libs'
+    'glibc'
+    'hicolor-icon-theme'
+    'qt6-base'
+)
+makedepends=('cmake' 'qt6-tools')
+checkdepends=()
+optdepends=(
+	'86box: 86Box Emulator'
+    '86box-roms: 86Box Emulator ROM files'
+)
+
+prepare() {
+    if [ ! -L $srcdir/$pkgname ]; then
+        ln -sf ../../../ $srcdir/$pkgname
+    fi
+}
+
+build() {
+    cmake -S"$pkgname" -DQT_QMAKE_EXECUTABLE=$(which qmake6) -DCMAKE_INSTALL_PREFIX=/usr -DCOPY_ICONS_TO_BUILD_DIR=OFF -Bbuild
+    cmake --build build
+}
+
+package() {
+    DESTDIR="${pkgdir}" cmake --build "${srcdir}/build" --target install
+    for size in 16 22 24 32 48 64 128 256; do
+        install -Dm644 "$srcdir/$pkgname/src/icons/86BoxLauncher/apps/$size/86boxlauncher.svg" "$pkgdir/usr/share/icons/hicolor/${size}x${size}/apps/86boxlauncher.svg"
+    done
+    install -Dm644 "$srcdir/$pkgname/pkgs/86BoxLauncher.desktop" "$pkgdir/usr/share/applications/86BoxLauncher.desktop"
+}
