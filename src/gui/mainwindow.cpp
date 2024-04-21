@@ -224,7 +224,7 @@ void MainWindow::setupUi()
                                           this);
     mStartButton->setEnabled(false);
     mSettingsButton->setEnabled(false);
-    mSeparatorLine->setFrameShape(QFrame::VLine);
+    mSeparatorLine->setFrameStyle(QFrame::VLine | QFrame::Sunken);
     mRemoveButton->setEnabled(false);
 
     // Add menu for settings button

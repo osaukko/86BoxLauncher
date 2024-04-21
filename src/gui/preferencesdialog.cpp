@@ -3,6 +3,10 @@
 
 #include "data/settings.h"
 
+#ifdef Q_OS_WINDOWS
+#include "utilities.h"
+#endif
+
 #include <QFileDialog>
 
 PreferencesDialog::PreferencesDialog(Settings *settings, QWidget *parent)
@@ -11,12 +15,18 @@ PreferencesDialog::PreferencesDialog(Settings *settings, QWidget *parent)
     , mSettings(settings)
 {
     mUi->setupUi(this);
+
+#ifdef Q_OS_WINDOWS
+    utilities::setDialogBoxIcons(mUi->buttonBox);
+#endif
+
     connect(mUi->buttonBox, &QDialogButtonBox::accepted, this, &PreferencesDialog::onAccepted);
     connect(mUi->buttonBox, &QDialogButtonBox::clicked, this, &PreferencesDialog::onButtonClicked);
     connect(mUi->emulatorBrowseToolButton,
             &QToolButton::clicked,
             this,
             &PreferencesDialog::onEmulatorBrowseButtonClicked);
+
     loadSettings();
 }
 

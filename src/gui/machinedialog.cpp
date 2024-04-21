@@ -4,12 +4,20 @@
 #include <QDir>
 #include <QFileDialog>
 
+#ifdef Q_OS_WINDOWS
+#include "utilities.h"
+#endif
+
 MachineDialog::MachineDialog(QWidget *parent)
     : QDialog(parent)
     , mUi(new Ui::MachineDialog)
 {
     mUi->setupUi(this);
     mUi->commandsGroupBox->hide();
+
+#ifdef Q_OS_WINDOWS
+    utilities::setDialogBoxIcons(mUi->buttonBox);
+#endif
 
     setupIconsCompoBox();
     onAdvancedButtonToggled();

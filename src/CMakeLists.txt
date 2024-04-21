@@ -11,9 +11,9 @@ add_subdirectory(utils)
 
 if(COPY_ICONS_TO_BUILD_DIR)
   if(WIN32)
-    # Symbolic links require administrator privileges on Windows and are a bit
-    # problematic because of that. Therefore, we copy files instead of symbolic
-    # links for Windows releases.
+    # Symbolic links require administrator privileges or developer mode on
+    # Windows and are a bit problematic because of that. Therefore, we copy
+    # files instead of symbolic links for Windows releases.
     file(
       GLOB_RECURSE ICONFILES
       LIST_DIRECTORIES false
