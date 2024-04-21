@@ -50,7 +50,6 @@ void setIconTheme()
     }
 
     QIcon::setThemeSearchPaths(themeSearchPaths);
-    QIcon::setThemeName("86BoxLauncher");
 #ifdef Q_OS_WINDOWS
     const auto palette = QApplication::palette();
     if (palette.window().color().value() < palette.windowText().color().value()) {
@@ -61,6 +60,7 @@ void setIconTheme()
 #else
     QIcon::setFallbackThemeName(QIcon::themeName());
 #endif
+    QIcon::setThemeName("86BoxLauncher");
 
     qDebug() << "Icon theme search paths:" << themeSearchPaths;
     qDebug() << "Icon theme:" << QIcon::themeName();
