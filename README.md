@@ -1,9 +1,8 @@
 # 86BoxLauncher
+
 The 86BoxLauncher is a configuration manager and launcher for the [86Box][86box] emulator.
 
-
-
-![86BoxLauncher running on Arch Linux in KDE Plasma 6](docs/arch-linux-kde-plasma-6.png) ![86BoxLauncher running on Windows 10](docs/windows-10.png)
+![86BoxLauncher running on Arch Linux in KDE Plasma 6](docs/images/arch-linux-kde-plasma-6.png) ![86BoxLauncher running on Windows 10](docs/images/windows-10.png)
 
 ## Building requirements
 
@@ -11,7 +10,14 @@ The 86BoxLauncher is a configuration manager and launcher for the [86Box][86box]
 * CMake 3.13 or newer
 * Qt 5 or Qt 6
 
-### Getting started
+### Optional requirements for building documentation
+
+* Doxygen
+* Graphviz
+
+If both tools are found, the `docs` target is added for the project.
+
+## Getting started
 
 The fastest way to get started is to install the Qt development environment and open the `CMakeList.txt` file at the project's root into Qt Creator. Compiling and starting the application should work out of the box.
 

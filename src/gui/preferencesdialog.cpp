@@ -54,7 +54,7 @@ void PreferencesDialog::onButtonClicked(QAbstractButton *button)
 
 void PreferencesDialog::onEmulatorBrowseButtonClicked()
 {
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WINDOWS
     const auto filter = tr("86Box Emulator (86Box.exe);;Executable (*.exe);;All files (*)");
 #else
     const auto filter = tr("86Box Emulator (86Box);;All files (*)");
