@@ -49,6 +49,9 @@ QByteArray Settings::mainWindowGeometry() const
 /**
  * @brief Restores 86Box emulator location
  * @return Path to 86Box emulator
+ * 
+ * @todo Set this automatically if it is empty, and the 86Box program is
+ *       found in the operating system paths (checking path environment variable)
  */
 QString Settings::emulatorBinary() const
 {

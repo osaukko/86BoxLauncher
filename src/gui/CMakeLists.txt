@@ -12,10 +12,8 @@ add_library(
   mainwindow.h
   preferencesdialog.cpp
   preferencesdialog.h
-  preferencesdialog.ui)
-
-if(WIN32)
-  target_sources(gui PRIVATE utilities.h utilities.cpp)
-endif()
+  preferencesdialog.ui
+  utilities.cpp
+  utilities.h)
 
 target_link_libraries(gui PUBLIC Qt${QT_VERSION_MAJOR}::Widgets mvc utils)

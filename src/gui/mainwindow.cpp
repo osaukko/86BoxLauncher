@@ -1,3 +1,11 @@
+// Copyright (C) 2023 Ossi Saukko <osaukko@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/**
+ * @file  mainwindow.cpp
+ * @brief MainWindow class implementation
+ */
+
 #include "mainwindow.h"
 #include "machinedialog.h"
 #include "preferencesdialog.h"
@@ -19,6 +27,12 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+/**
+ * @brief Construct the main window widget
+ * @param[in] parent   Pointer to the parent widget
+ * @note In our case there is no parent widget, so main window is
+ *       constructed using nullptr for parent.
+ */
 MainWindow::MainWindow(QWidget *parent)
     : QWidget{parent}
     , mSaveTimer{new QTimer(this)}
@@ -34,12 +48,25 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mSaveTimer, &QTimer::timeout, this, &MainWindow::saveMachines);
 }
 
+/**
+ * @brief This event is triggered when the user closes the main window
+ * 
+ * We use this event to save the main window geometry into settings.
+ * 
+ * @param[in] event   Event information object
+ */
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     mSettings->setMainWindowGeometry(saveGeometry());
     QWidget::closeEvent(event);
 }
 
+/**
+ * @brief The user pressed the add tool button
+ *
+ * We open the MachineDialog for the user. If the user accepts the
+ * dialog, a new machine from the dialog is added to the model.
+ */
 void MainWindow::onAddClicked()
 {
     MachineDialog dialog(this);
@@ -61,6 +88,13 @@ void MainWindow::onAddClicked()
     }
 }
 
+/**
+ * @brief The user selected edit machine from the settings button menu
+ * 
+ * We create a MachineDialog object and set the selected machine item for
+ * it. We then show the dialog for the user, and if the dialog is accepted,
+ * then new settings are applied for the selected machine item.
+ */
 void MainWindow::onEditClicked()
 {
     MachineDialog dialog(this);
@@ -72,6 +106,22 @@ void MainWindow::onEditClicked()
     }
 }
 
+/**
+ * @brief The selection on the list view changed.
+ *
+ * The following tool buttons are enabled or disabled based on whether
+ * something is selected or not:
+ * 
+ * - Start button
+ * - Settings button
+ * - Remove button
+ * 
+ * Also, the edit machine menu item is enabled or disabled at the same
+ * time, although the menu should not be available when the settings
+ * button is disabled.
+ * 
+ * @param[in] selected   List of selected items
+ */
 void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
                                            const QItemSelection & /*deselected*/)
 {
@@ -82,12 +132,25 @@ void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
     mRemoveButton->setEnabled(gotSelection);
 }
 
+/**
+ * @brief The user pressed the preferences button.
+ *
+ * We create PreferencesDialog and borrow the settings object for it.
+ * Dialog is then shown to the user.
+ */
 void MainWindow::onPreferencesClicked()
 {
     PreferencesDialog dialog(mSettings, this);
     dialog.exec();
 }
 
+/**
+ * @brief The user pressed the remove button.
+ *
+ * We create a question message box with information about what we are
+ * about to remove. If the user selects yes from the question message
+ * box, the corresponding machine item from the model is removed.
+ */
 void MainWindow::onRemoveClicked()
 {
     QMessageBox messageBox(
@@ -106,6 +169,15 @@ void MainWindow::onRemoveClicked()
     }
 }
 
+/**
+ * @brief The user pressed the settings button.
+ *
+ * This function takes an alternative settings command from the selected
+ * machine item. If the alternative settings command is empty, the
+ * function uses the default settings command from the settings object.
+ * 
+ * The command is then run using the runCommand().
+ */
 void MainWindow::onSettingsClicked()
 {
     const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
@@ -116,6 +188,15 @@ void MainWindow::onSettingsClicked()
     runCommand(command, machine);
 }
 
+/** 
+ * @brief The user pressed the start button.
+ *
+ * This function takes an alternative start command from the selected
+ * machine item. If the alternative start command is empty, the
+ * function uses the default start command from the settings object.
+ *
+ * The command is then run using the runCommand().
+ */
 void MainWindow::onStartClicked()
 {
     const auto machine = mVmModel->machineForIndex(mVmView->currentIndex());
@@ -126,6 +207,16 @@ void MainWindow::onStartClicked()
     runCommand(command, machine);
 }
 
+/**
+ * @brief Save all machines to the `machines.json` file
+ * 
+ * @pre This method is run on the mSaveTimer timeout signal.
+ * 
+ * The method requests a QVariantList of all machine items from the
+ * model using its @ref MachineListModel::save() "save()" method.
+ * The QVariantList is then turned into an indented JSON and written
+ * to the `machines.json` file in the config directory.
+ */
 void MainWindow::saveMachines()
 {
     QFile file(Settings::configHome() + "/machines.json");
@@ -141,6 +232,18 @@ void MainWindow::saveMachines()
     qDebug() << "Machines saved";
 }
 
+/**
+ * @brief A helper function to create tool buttons
+ *
+ * This function allows us to add tool buttons to the main windows using
+ * a common style with a single line of code.
+ * 
+ * @param[in] icon     Icon for the tool button
+ * @param[in] text     Text shown below the icon
+ * @param[in] parent   Pointer to the parent widget
+ * 
+ * @return Pointer to the new tool button widget
+ */
 QToolButton *MainWindow::createToolButton(const QIcon &icon, const QString &text, QWidget *parent)
 {
     constexpr auto toolbarIconSize = 48;
@@ -153,6 +256,16 @@ QToolButton *MainWindow::createToolButton(const QIcon &icon, const QString &text
     return button;
 }
 
+/**
+ * @brief Restore machines from the `machines.json` file.
+ *
+ * @pre This method is run when the main window is constructed.
+ * 
+ * This function tries to read the `machines.json` from the config
+ * directory. Content is then parsed as JSON. If there are no errors,
+ * the loaded content is passed as QVariantList to the model using its
+ * @ref MachineListModel::restore "restore()" method.
+ */
 void MainWindow::restoreMachines()
 {
     QFile file(Settings::configHome() + "/machines.json");
@@ -177,6 +290,21 @@ void MainWindow::restoreMachines()
     mVmModel->restore(jsonDocument.toVariant().toList());
 }
 
+/**
+ * @brief Running commands
+ *
+ * This method takes the *command* and uses the @ref Formatter::format()
+ * function to fill its variable fields using information from the
+ * *machine* item. The operating system is then requested to run
+ * the completed command.
+ *
+ * If something goes wrong, the user will receive an error message box.
+ * 
+ * @param[in] command   Command that should be run
+ * @param[in] machine   Machine item to fill variable field in the *command*
+ * 
+ * @todo Show a visual indicator for the user that the command is run
+ */
 void MainWindow::runCommand(const QString &command, const Machine &machine)
 {
     bool ok = false;
@@ -200,6 +328,10 @@ void MainWindow::runCommand(const QString &command, const Machine &machine)
     }
 }
 
+/**
+ * @brief Creates the user interface for the main window
+ * @pre This method is run when the main window is constructed
+ */
 void MainWindow::setupUi()
 {
     constexpr auto initialWidth = 640;
@@ -272,6 +404,19 @@ void MainWindow::setupUi()
             &MainWindow::onMachineSelectionChanged);
 }
 
+/**
+ * @brief Create an information map for the given machine
+ *
+ * This method creates an information map that can be used with
+ * the @ref Formatter tool.
+ * 
+ * Map contains the following items:
+ * - `86box`: with path to the 86Box emulator binary from the settings.
+ * - `config`: with path to the configuration file of the *machine* item.
+ * 
+ * @param[in] machine   Make information map for this machine item
+ * @return Map with machine information
+ */
 QHash<QString, QString> MainWindow::variablesForMachine(const Machine &machine) const
 {
     // Adding double quotes to ensure paths with spaces work correctly.

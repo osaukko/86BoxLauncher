@@ -22,7 +22,7 @@
  *
  * Example:
  *
- * @code{bash}
+ * @code{.sh}
  * cd 86boxlauncher-srcdir
  * cmake -B build -DQT_QMAKE_EXECUTABLE=$(which qmake6)
  * cmake --build build

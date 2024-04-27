@@ -1,13 +1,23 @@
+// Copyright (C) 2024 Ossi Saukko <osaukko@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/**
+ * @file  machinedialog.cpp
+ * @brief MachineDialog class implementation
+ */
+
 #include "machinedialog.h"
 #include "ui_machinedialog.h"
+
+#include "utilities.h"
 
 #include <QDir>
 #include <QFileDialog>
 
-#ifdef Q_OS_WINDOWS
-#include "utilities.h"
-#endif
-
+/**
+ * @brief Create MachineDialog object
+ * @param[in] parent   Pointer to the parent widget
+ */
 MachineDialog::MachineDialog(QWidget *parent)
     : QDialog(parent)
     , mUi(new Ui::MachineDialog)
@@ -15,11 +25,9 @@ MachineDialog::MachineDialog(QWidget *parent)
     mUi->setupUi(this);
     mUi->commandsGroupBox->hide();
 
-#ifdef Q_OS_WINDOWS
     utilities::setDialogBoxIcons(mUi->buttonBox);
-#endif
 
-    setupIconsCompoBox();
+    setupIconsComboBox();
     onAdvancedButtonToggled();
 
     connect(mUi->advancedPushButton,
@@ -43,11 +51,32 @@ MachineDialog::~MachineDialog()
     delete mUi;
 }
 
+/**
+ * @brief Machine setup
+ *
+ * This function returns the @ref mMachine object as is, but please
+ * note that settings in the object are updated when the user accepts
+ * the dialog.
+ * 
+ * @return @ref mMachine object
+ */
 Machine MachineDialog::machine() const
 {
     return mMachine;
 }
 
+/**
+ * @brief Set machine setup
+ * 
+ * The function saves the given settings to the @ref mMachine object so
+ * that any additional properties are kept there. The interface widgets
+ * are then set to display the settings for the given machine.
+ *
+ * If alternative commands are defined, then the advanced settings view
+ * is enabled.
+ * 
+ * @param[in] machine   Use these settings in the dialog
+ */
 void MachineDialog::setMachine(const Machine &machine)
 {
     mMachine = machine;
@@ -64,6 +93,9 @@ void MachineDialog::setMachine(const Machine &machine)
     }
 }
 
+/**
+ * @brief The user toggled the advanced view button
+ */
 void MachineDialog::onAdvancedButtonToggled()
 {
     if (mUi->advancedPushButton->isChecked()) {
@@ -74,6 +106,12 @@ void MachineDialog::onAdvancedButtonToggled()
     mUi->commandsGroupBox->setVisible(mUi->advancedPushButton->isChecked());
 }
 
+/**
+ * @brief The user pressed the accept button on the dialog
+ *
+ * The @ref mMachine object is updated with the settings from the dialog,
+ * and then the dialog is closed, and its result code is set to Accepted.
+ */
 void MachineDialog::onButtonBoxAccepted()
 {
     mMachine.setIcon(mUi->iconComboBox->currentData().value<Machine::IconType>(),
@@ -86,6 +124,14 @@ void MachineDialog::onButtonBoxAccepted()
     accept();
 }
 
+/**
+ * @brief The user pressed machine configuration tool button
+ * 
+ * We show the user a file dialog in which he can specify the location
+ * where the emulator configuration for this setup is stored. If the
+ * user accepts the file dialog, the line edit for the configuration
+ * path is updated.
+ */
 void MachineDialog::onConfigToolButtonClicked()
 {
     auto directory = QFileInfo(QDir::fromNativeSeparators(mUi->configLineEdit->text()))
@@ -106,6 +152,12 @@ void MachineDialog::onConfigToolButtonClicked()
     }
 }
 
+/**
+ * @brief The user pressed the icon button next to the icon combo box
+ * 
+ * We show the user a file dialog to allow the user to select which file
+ * is used as the icon for the machine configuration.
+ */
 void MachineDialog::onIconToolButtonClicked()
 {
     const auto iconFile = QFileDialog::getOpenFileName(this,
@@ -118,6 +170,9 @@ void MachineDialog::onIconToolButtonClicked()
     }
 }
 
+/**
+ * @brief Updates icon combo box to show the correct icon
+ */
 void MachineDialog::setIcon()
 {
     auto *icb = mUi->iconComboBox;
@@ -145,7 +200,10 @@ void MachineDialog::setIcon()
     }
 }
 
-void MachineDialog::setupIconsCompoBox()
+/**
+ * @brief Adds built-in options for the icon combo box
+ */
+void MachineDialog::setupIconsComboBox()
 {
     mUi->iconComboBox->addItem(tr("No icon"), Machine::NoIcon);
     const auto machine_icons = {
