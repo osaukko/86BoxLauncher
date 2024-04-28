@@ -1,15 +1,66 @@
+// Copyright (C) 2024 Ossi Saukko <osaukko@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/**
+ * @file  machinedelegate.cpp
+ * @brief MachineDelegate class implementation
+ */
+
 #include "machinedelegate.h"
 #include "machinelistmodel.h"
 
 #include <QApplication>
 #include <QPainter>
 
+/**
+ * @brief Construct machine delegate
+ * @param[in] parent   Pointer to the parent object
+ */
 MachineDelegate::MachineDelegate(QObject *parent)
     : QStyledItemDelegate{parent}
 {}
 
 MachineDelegate::~MachineDelegate() = default;
 
+/**
+ * @brief Painting Machine item
+ * 
+ * This function starts by initializing the style options and checking
+ * whether the desktop theme is light or dark.
+ *
+ * Next, the function calculates the positions of the items to be drawn
+ * using the @ref calculateLayout function.
+ * 
+ * The function saves the drawing settings before drawing and returns
+ * them at the end of the drawing.
+ * 
+ * @par Painting
+ * 
+ * <img src="MachineDelegate-Layout.svg" alt="Machine item layout">
+ * 
+ * The first step is to draw a rounded background rectangle. This is
+ * drawn if the target is selected or the mouse pointer is over it.
+ * The rectangle's color is derived from the style highlight color and
+ * modified based on the desktop color theme, selection status, and
+ * whether the mouse is over the item. The outline for the rectangle is
+ * drawn if the mouse pointer is over the item.
+ * 
+ * The machine icon is drawn in the middle of the reserved area.
+ *
+ * The name is drawn using a 1 pt larger version of the style font in
+ * the space reserved.
+ *
+ * The summary is drawn using a 1 pt smaller version of the style font
+ * in the space reserved. Text is colored using the placeholder color
+ * from the style.
+ * 
+ * If the name or summary does not fit in the reserved area, they are
+ * cut to fit, and `...` is added to the end of the text.
+ * 
+ * @param[in] painter   Pointer to painter object used for drawing
+ * @param[in] option    Style options for the item
+ * @param[in] index     Index for reading Machine item data
+ */
 void MachineDelegate::paint(QPainter *painter,
                             const QStyleOptionViewItem &option,
                             const QModelIndex &index) const
@@ -86,6 +137,16 @@ void MachineDelegate::paint(QPainter *painter,
     painter->restore();
 }
 
+/**
+ * @brief Calculates the appropriate size to fit all the data
+ * 
+ * This function initializes the style options and passes it and *index*
+ * for the @ref calculateLayout to the math.
+ * 
+ * @param[in] option    Style options for the item
+ * @param[in] index     Index for reading Machine item data
+ * @return Optimal size for the item
+ */
 QSize MachineDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     auto styleOption = option;
@@ -93,6 +154,14 @@ QSize MachineDelegate::sizeHint(const QStyleOptionViewItem &option, const QModel
     return calculateLayout(styleOption, index);
 }
 
+/**
+ * @brief Search for a style object
+ *
+ * A helper function that returns the style object of the parent widget
+ * or application default style as a fallback.
+ * 
+ * @return Pointer to style object
+ */
 QStyle *MachineDelegate::getStyle() const
 {
     // Use parent widget style when available and use application style as a fallback.
@@ -100,6 +169,30 @@ QStyle *MachineDelegate::getStyle() const
     return widget != nullptr ? widget->style() : QApplication::style();
 }
 
+/**
+ * @brief Calculate optimal size and item positions
+ * 
+ * The method first retrieves the style sheet using the @ref getStyle
+ * method. Style object is used to retrieve information about margins
+ * and spacing.
+ * 
+ * The method calculates the size of the areas needed to draw each
+ * item. Using this information, the optimal size can be calculated to
+ * fit all the information.
+ * 
+ * Pointers to rectangle objects are optional. If they are given, then
+ * the positions and sizes of the items are calculated for them. These
+ * calculations take into account the total available drawing area.
+ * 
+ * <img src="MachineDelegate-Layout.svg" alt="Machine item layout">
+ * 
+ * @param[in] option        Style options for the item
+ * @param[in] index         Index for reading Machine item data
+ * @param[out] iconArea     Calculate the icon area into this rectangle (optional)
+ * @param[out] nameArea     Calculate the name label area into this rectangle (optional)
+ * @param[out] summaryArea  Calculate the summary label area into this rectangle (optional)
+ * @return Optimal size for the item
+ */
 QSize MachineDelegate::calculateLayout(const QStyleOptionViewItem &option,
                                        const QModelIndex &index,
                                        QRect *iconArea,

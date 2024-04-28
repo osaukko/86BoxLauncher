@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12)
 project(
   86BoxLauncher
   VERSION 0.1.0
-  DESCRIPTION "The 86BoxLauncher is a configuration manager and launcher for the 86Box emulator"
+  DESCRIPTION "Configuration manager and launcher for the 86Box emulator"
   LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)

@@ -1,3 +1,11 @@
+// Copyright (C) 2024 Ossi Saukko <osaukko@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/**
+ * @file  machinelistmodel.h
+ * @brief MachineListModel class definition
+ */
+
 #ifndef MACHINELISTMODEL_H
 #define MACHINELISTMODEL_H
 
@@ -5,13 +13,33 @@
 #include <QList>
 #include "data/machine.h"
 
+/**
+ * @brief List model of Machine items
+ *
+ * This model provides the following information according to their role:
+ * - `Qt::DecorationRole`            -> Machine icon
+ * - `Qt::DisplayRole`               -> Machine name
+ * - `MachineListModel::SummaryRole` -> Machine summary
+ * 
+ * In addition, @ref machineForIndex allows the Machine object to be
+ * retrieved from the given index.
+ * 
+ * A @ref modelChanged signal is sent for any changes to the model.
+ * Main window uses this signal to know when machine configurations 
+ * should be written into the file.
+ */
 class MachineListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(MachineListModel)
 
 public:
-    enum ItemRole { SummaryRole = Qt::UserRole + 1 };
+    /**
+     * @brief Custom item roles for this model
+     */
+    enum ItemRole {
+        SummaryRole = Qt::UserRole + 1 /*!< @brief The summary data for the machine. (QString) */
+    };
     Q_ENUM(ItemRole);
 
     explicit MachineListModel(QObject *parent = nullptr);
@@ -26,6 +54,9 @@ public:
     void restore(const QVariantList &machines);
 
 signals:
+    /**
+     * @brief This model was just modified
+     */
     void modelChanged();
 
     // QAbstractItemModel interface
@@ -52,7 +83,7 @@ public:
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
-    QList<Machine> mMachines;
+    QList<Machine> mMachines; /*!< @brief Data for the model */
 };
 
 #endif // MACHINELISTMODEL_H

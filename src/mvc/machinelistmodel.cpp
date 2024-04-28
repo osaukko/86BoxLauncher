@@ -1,3 +1,11 @@
+// Copyright (C) 2024 Ossi Saukko <osaukko@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/**
+ * @file  machinelistmodel.cpp
+ * @brief MachineListModel class implementation
+ */
+
 #include "machinelistmodel.h"
 
 #include <QDebug>
@@ -9,26 +17,59 @@ namespace {
 const auto jsonMimeType = "application/json";
 } // namespace
 
+/**
+ * @brief Construct a machine list model
+ * @param[in] parent   Pointer to parent object
+ */
 MachineListModel::MachineListModel(QObject *parent)
     : QAbstractListModel{parent}
-{}
+{
+    connect(this, &MachineListModel::modelReset, this, &MachineListModel::modelChanged);
+    connect(this, &MachineListModel::dataChanged, this, &MachineListModel::modelChanged);
+    connect(this, &MachineListModel::rowsInserted, this, &MachineListModel::modelChanged);
+    connect(this, &MachineListModel::rowsMoved, this, &MachineListModel::modelChanged);
+    connect(this, &MachineListModel::rowsRemoved, this, &MachineListModel::modelChanged);
+}
 
 MachineListModel::~MachineListModel() = default;
 
+/**
+ * @brief Add a new *machine* to the model.
+ *
+ * This convenience function allows for the easy addition of a new
+ * *machine* at the end of the list model.
+ * 
+ * @param[in] machine   Add this machine to the model
+ */
 void MachineListModel::addMachine(const Machine &machine)
 {
     auto row = static_cast<int>(mMachines.size());
     beginInsertRows({}, row, row);
     mMachines.append(machine);
     endInsertRows();
-    emit modelChanged();
 }
 
+/**
+ * @brief Get Machine item from the *index*
+ * @param[in] index   Get Machine from this index
+ * @return Machine item from given *index*
+ * @note Default machine is returned if given *index* is invalid
+ */
 Machine MachineListModel::machineForIndex(const QModelIndex &index) const
 {
     return mMachines.value(index.row());
 }
 
+/**
+ * @brief Replace the Machine item at the given *index*.
+ *
+ * This convenience function allows easy change of Machine items.
+ * Only an error message is printed to the console if the given *index*
+ * is invalid.
+ * 
+ * @param[in] index     Replace machine item at this index
+ * @param[in] machine   Replace it with this machine
+ */
 void MachineListModel::setMachineForIndex(const QModelIndex &index, const Machine &machine)
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= mMachines.size()) {
@@ -37,9 +78,16 @@ void MachineListModel::setMachineForIndex(const QModelIndex &index, const Machin
     }
     mMachines[index.row()] = machine;
     emit dataChanged(index, index, {Qt::DecorationRole, Qt::DisplayRole, SummaryRole});
-    emit modelChanged();
 }
 
+/**
+ * @brief The convenience function is to remove the machine at *index*.
+ * 
+ * Only an error message is printed to the console if the given *index*
+ * is invalid.
+ * 
+ * @param[in] index   Remove machine from this index
+ */
 void MachineListModel::remove(const QModelIndex &index)
 {
     if (!index.isValid() || index.row() < 0 || index.row() >= mMachines.size()) {
@@ -49,9 +97,18 @@ void MachineListModel::remove(const QModelIndex &index)
     beginRemoveRows({}, index.row(), index.row());
     mMachines.removeAt(index.row());
     endRemoveRows();
-    emit modelChanged();
 }
 
+/**
+ * @brief Save all machine items into QVariantList
+ *
+ * This method calls the @ref Machine::save "save()" method for each
+ * Machine item in the list, and stores returned data into QVariantList.
+ * The complete QVariantList object is then returned.
+ * 
+ * @return QVariantList containing all the data for machines
+ * @see MachineListModel::restore
+ */
 QVariantList MachineListModel::save() const
 {
     QVariantList machineList;
@@ -61,6 +118,16 @@ QVariantList MachineListModel::save() const
     return machineList;
 }
 
+/**
+ * @brief Restore machines from the QVariantList
+ * 
+ * This method clears the model and restores all machines from the list.
+ * If restoring a machine fails, an error message is printed to the
+ * console, and the restoration is continued from the next machine.
+ * 
+ * @param[in] machines   Restore machines from this list
+ * @see MachineListModel::save
+ */
 void MachineListModel::restore(const QVariantList &machines)
 {
     beginResetModel();
@@ -75,6 +142,18 @@ void MachineListModel::restore(const QVariantList &machines)
     endResetModel();
 }
 
+/**
+ * @brief Row count for given *parent* index
+ * 
+ * Since this is a list model, we only return the machine list item
+ * count when the index is invalid, aka when the view requests the row
+ * count from the root index.
+ * 
+ * On valid indexes, we return zero.
+ * 
+ * @param[in] parent   Requesting row count under this parent
+ * @return Machine item count for invalid indexes and zero for valid indexes
+ */
 int MachineListModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
@@ -83,6 +162,22 @@ int MachineListModel::rowCount(const QModelIndex &parent) const
     return static_cast<int>(mMachines.size());
 }
 
+/**
+ * @brief Get item data from given *index* with the *role*
+ * 
+ * For valid indexes, we return the following information according to
+ * the requested role:
+ * 
+ * - For `Qt::DecorationRole` we return Machine icon
+ * - For `Qt::DisplayRole` we return Machine name
+ * - For `MachineListModel::SummaryRole` we return Machine summary
+ * 
+ * For all other cases, an invalid variant is returned.
+ * 
+ * @param[in] index   Get data from this index
+ * @param[in] role    Get data using this role
+ * @return Machine icon, name, summary or invalid variant
+ */
 QVariant MachineListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid()) {
@@ -108,6 +203,23 @@ QVariant MachineListModel::data(const QModelIndex &index, int role) const
     }
 }
 
+/**
+ * @brief Model headers
+ * 
+ * In the horizontal direction, "Machines" is returned to the first
+ * column. For other columns, an invalid variant is returned.
+ * 
+ * In the vertical direction, the header is returned as the line
+ * number.
+ * 
+ * Only Qt::DisplayRole is accepted, and we return an invalid variant
+ * for other roles.
+ * 
+ * @param[in] section       Header section number 
+ * @param[in] orientation   Horizontal or vertical header
+ * @param[in] role          Requestin header data with this role
+ * @return Header test or invalid variant
+ */
 QVariant MachineListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole) {
@@ -128,11 +240,29 @@ QVariant MachineListModel::headerData(int section, Qt::Orientation orientation, 
     return {};
 }
 
+/**
+ * @brief MIME types allowed for this model.
+ *
+ * We allow `"application/json"` for this model. This was added to
+ * allow drag-and-drop sorting of Machine items in the list view.
+ * 
+ * @return MIME types allowed.
+ */
 QStringList MachineListModel::mimeTypes() const
 {
     return {jsonMimeType};
 }
 
+/**
+ * @brief Construct MIME data for machines from the *indexes*
+ *
+ * This function creates a QVariantList of machines from the given
+ * *indexes*.  The list is then converted to JSON and returned as a
+ * MIME data object.
+ * 
+ * @param[in] indexes   Get MIME data for these machines
+ * @return MIME data for requested machines
+ */
 QMimeData *MachineListModel::mimeData(const QModelIndexList &indexes) const
 {
     if (indexes.isEmpty()) {
@@ -152,6 +282,21 @@ QMimeData *MachineListModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
+/**
+ * @brief Check if the MIME data can be accepted
+ * 
+ * The function checks that *data* is valid and *action* is allowed.
+ * It then checks that the MIME type is `"application/json"`. 
+ * Finally, it checks where the object is being dropped. 
+ * 
+ * @param[in] data     Data about to be dropped
+ * @param[in] action   Drop action
+ * @param[in] row      Current row where to drop
+ * @param[in] column   Current column where to drop
+ * @param[in] parent   Index for the parent item
+ * 
+ * @return If everything is OK, then `true` and `false` otherwise.
+ */
 bool MachineListModel::canDropMimeData(const QMimeData *data,
                                        Qt::DropAction action,
                                        int row,
@@ -182,6 +327,23 @@ bool MachineListModel::canDropMimeData(const QMimeData *data,
     return column == 0 && row >= 0 && row <= mMachines.size();
 }
 
+/**
+ * @brief Handle dropped MIME data.
+ *
+ * The method checks that data can be accepted with the 
+ * @ref canDropMimeData. It then decodes JSON data from the dropped
+ * MIME data. The decoded JSON is converted to Machine items and
+ * inserted into the drop location.
+ * 
+ * @param[in] data     Dropped MIME data
+ * @param[in] action   Drop action
+ * @param[in] row      Row where data was dropped
+ * @param[in] column   Column where data was dropped
+ * @param[in] parent   Parent index where data was dropped
+ * 
+ * @return `true` if data was accepted and inserted into the model,
+ *         `false` otherwise 
+ */
 bool MachineListModel::dropMimeData(
     const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
 {
@@ -222,16 +384,36 @@ bool MachineListModel::dropMimeData(
         ++first;
     }
     endInsertRows();
-    emit modelChanged();
 
     return true;
 }
 
+/**
+ * @brief Flags for supported drop actions
+ * 
+ * We only support `Qt::MoveAction`, which allows users to sort machine
+ * items in the list view using drag and drop.
+ * 
+ * @return Qt::MoveAction
+ */
 Qt::DropActions MachineListModel::supportedDropActions() const
 {
     return Qt::MoveAction;
 }
 
+/**
+ * @brief Remove machines from the model.
+ *
+ * This method allows removing one or multiple machines from the model.
+ * 
+ * @param[in] row      Start removing from this row
+ * @param[in] count    How many machines to remove
+ * @param[in] parent   Parent index (should be invalid)
+ * 
+ * @return `true` if machines were removed, `false` if something is wrong with the request
+ * 
+ * @see MachineListModel::remove
+ */
 bool MachineListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (parent.isValid() || count <= 0 || row < 0 || (row + count) > mMachines.size()) {
@@ -245,10 +427,19 @@ bool MachineListModel::removeRows(int row, int count, const QModelIndex &parent)
 #endif
     mMachines.erase(it, it + count);
     endRemoveRows();
-    emit modelChanged();
     return true;
 }
 
+/**
+ * @brief Item flags for given *index*
+ * 
+ * The method takes the item's default flags and adds
+ * `Qt::ItemIsDropEnabled`. If the index is valid, 
+ * `Qt::ItemIsDragEnabled` is also added.
+ * 
+ * @param[int] index   Get flags for this item
+ * @return Flags for the item
+ */
 Qt::ItemFlags MachineListModel::flags(const QModelIndex &index) const
 {
     auto flags = QAbstractListModel::flags(index) | Qt::ItemIsDropEnabled;

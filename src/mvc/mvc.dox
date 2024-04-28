@@ -1,0 +1,5 @@
+/**
+ * @dir   mvc
+ * @brief Components implementing the Model-View-Controller design pattern
+ * @see   https://doc.qt.io/qt-6/model-view-programming.html
+ */

@@ -30,6 +30,19 @@
  * ./86BoxLauncher
  * @endcode
  *
+ * @subsection dirs Directories
+ *
+ * - `assets-src`: Source files for assets, such as unoptimized SVG images.
+ * - `cmake`: Additional CMake modules for the project
+ * - `docs`: Files for generating documentation
+ * - `pkgs`: Files to package the program
+ * - `src`: Program source files
+ * - `tests`: The few unit tests for the project
+ *
+ * @subsection contributions Contributions
+ *
+ * All contributions to the project are welcome.
+ *
  * @section licensing Licensing
  *
  * 86BoxLaunchers is released under the <a href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.html">
