@@ -1,33 +1,66 @@
+// Copyright (C) 2024 Ossi Saukko <osaukko@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+/**
+ * @file  formatter.cpp
+ * @brief Formatter class implementation
+ */
+
 #include "formatter.h"
 
 // StringPart
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Formattable string part
+ */
 struct StringPart
 {
-    enum Type { Text, Variable };
-    Type type;
-    QString string;
+    /**
+     * @brief Type of the part
+     * 
+     * The type defines how the *string* is interpreted.
+     */
+    enum Type {
+        Text,    /*!< @brief This part is literal text */
+        Variable /*!< @brief This part is a variable that should be replaced when text is formatted */
+    };
+    Type type;      /*!< @brief Type for this part */
+    QString string; /*!< @brief Text or variable name */
 };
 
 // FormatterData
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Implicitly shared data for Formatter objects
+ */
 class FormatterData : public QSharedData
 {
 public:
-    QVector<StringPart> parts;
+    QVector<StringPart> parts; /*!< @brief Parts of string to format */
 };
 
 // Formatter
 //--------------------------------------------------------------------------------------------------
 
+/**
+ * @brief Construct a new empty Formatter
+ */
 Formatter::Formatter()
     : data(new FormatterData)
 {}
 
-Formatter::Formatter(const Formatter &rhs) = default;
+/**
+ * @brief Construct Formatter object with reference to *other*
+ * @param[in] other   Use the same values as this object
+ */
+Formatter::Formatter(const Formatter &other) = default;
 
+/**
+ * @brief Construct Formatter object and move the reference from *other*. 
+ * @param[in] other   Move reference from this object
+ */
 Formatter::Formatter(Formatter &&other) noexcept
     : data(std::move(other.data))
 {}
@@ -101,6 +134,16 @@ bool variableProcessing(QString::ConstIterator &it,
 
 } // namespace
 
+/**
+ * @brief Set input string for formatting
+ * 
+ * The function splits the given string into parts, which can then be
+ * used to form the formatted string.
+ * 
+ * @param[in] input   Format this string
+ * @return `true` if input is valid, 
+ *         `false` if something is wrong with the input.
+ */
 bool Formatter::setInput(const QString &input)
 {
     data->parts.clear();
@@ -143,6 +186,18 @@ bool Formatter::setInput(const QString &input)
     return true;
 }
 
+/**
+ * @brief Make formatted string
+ * 
+ * Format the given input string and replace the variables in it with
+ * the given *variables*.
+ *
+ * Variables are given as a hash map where *key* is the variable and
+ * *value* is the text that should replace the variable. 
+ * 
+ * @param[in] variables   Use these variables for formatting the output
+ * @return Formatted string
+ */
 QString Formatter::format(const QHash<QString, QString> &variables) const
 {
     QString string;
@@ -159,6 +214,16 @@ QString Formatter::format(const QHash<QString, QString> &variables) const
     return string;
 }
 
+/**
+ * @brief Convenience function text formatting
+ * 
+ * This static function is a convenient one-command way to perform text formatting.
+ * 
+ * @param[in] input       Input string for formatting
+ * @param[in] variables   Hash map of variables with their values
+ * @param[out] ok         This optional flag allows checking if the formatting was successful
+ * @return Formatted string
+ */
 QString Formatter::format(const QString &input, const QHash<QString, QString> &variables, bool *ok)
 {
     Formatter formatter;
@@ -171,8 +236,18 @@ QString Formatter::format(const QString &input, const QHash<QString, QString> &v
 
 Formatter::~Formatter() = default;
 
+/**
+ * @brief Assignment operator
+ * @param[in] other   Use the same values as this object 
+ * @return Reference to this object
+ */
 Formatter &Formatter::operator=(const Formatter &other) = default;
 
+/**
+ * @brief Move assignment operator
+ * @param[in] other   Move reference from this object
+ * @return Reference to this object
+ */
 Formatter &Formatter::operator=(Formatter &&other) noexcept
 {
     data = std::move(other.data);

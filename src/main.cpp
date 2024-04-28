@@ -6,11 +6,12 @@
  * @brief The entry point for the program
  */
 
+#include "gui/mainwindow.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QFile>
-
-#include "gui/mainwindow.h"
+#include <QIcon>
 
 void setIconTheme();
 

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "86BoxLauncher"
-#define MyAppVersion "0.0.1"
+#define MyAppVersion "0.1.0"
 #define MyAppURL "https://github.com/osaukko/86BoxLauncher"
 #define MyAppExeName "86BoxLauncher.exe"
 

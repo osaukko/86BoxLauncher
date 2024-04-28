@@ -20,6 +20,7 @@
 #include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QListView>
+#include <QMenu>
 #include <QMessageBox>
 #include <QProcess>
 #include <QTimer>

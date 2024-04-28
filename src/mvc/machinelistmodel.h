@@ -40,7 +40,7 @@ public:
     enum ItemRole {
         SummaryRole = Qt::UserRole + 1 /*!< @brief The summary data for the machine. (QString) */
     };
-    Q_ENUM(ItemRole);
+    Q_ENUM(ItemRole); /*!< @brief Registering ItemRole to meta-object system */
 
     explicit MachineListModel(QObject *parent = nullptr);
     ~MachineListModel() override;

@@ -9,7 +9,7 @@
 #include "machinedialog.h"
 #include "ui_machinedialog.h"
 
-#include "utilities.h"
+#include "utils/utilities.h"
 
 #include <QDir>
 #include <QFileDialog>

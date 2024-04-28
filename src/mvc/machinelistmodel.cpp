@@ -437,7 +437,7 @@ bool MachineListModel::removeRows(int row, int count, const QModelIndex &parent)
  * `Qt::ItemIsDropEnabled`. If the index is valid, 
  * `Qt::ItemIsDragEnabled` is also added.
  * 
- * @param[int] index   Get flags for this item
+ * @param[in] index   Get flags for this item
  * @return Flags for the item
  */
 Qt::ItemFlags MachineListModel::flags(const QModelIndex &index) const

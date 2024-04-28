@@ -9,7 +9,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMenu>
 #include <QWidget>
 
 class Machine;
@@ -19,6 +18,7 @@ class QFrame;
 class QHBoxLayout;
 class QItemSelection;
 class QListView;
+class QMenu;
 class QToolButton;
 class QVBoxLayout;
 class Settings;

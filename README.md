@@ -35,7 +35,7 @@ cd build/src
 
 ## Directories
 
-* `assets-src`: Source files for assets, such as unoptimized SVG images.
+* `assets-src`: Source files for assets, such as unoptimized SVG images
 * `cmake`: Additional CMake modules for the project
 * `docs`: Files for generating documentation
 * `pkgs`: Files to package the program

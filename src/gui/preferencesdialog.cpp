@@ -10,7 +10,7 @@
 #include "ui_preferencesdialog.h"
 
 #include "data/settings.h"
-#include "utilities.h"
+#include "utils/utilities.h"
 
 #include <QFileDialog>
 
