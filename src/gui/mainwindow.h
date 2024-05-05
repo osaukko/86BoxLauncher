@@ -52,6 +52,7 @@ protected:
 private slots:
     void onAddClicked();
     void onEditClicked();
+    void onMachineDoubleClicked(const QModelIndex &index);
     void onMachineSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void onPreferencesClicked();
     void onRemoveClicked();

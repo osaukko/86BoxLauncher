@@ -108,6 +108,20 @@ void MainWindow::onEditClicked()
 }
 
 /**
+ * @brief A user double-clicked a machine item with the mouse.
+ *
+ * The method ensures that the machine item is selected and starts
+ * the 86Box emulator with its configuration.
+ * 
+ * @param[in] index   Index for double-clicked item
+ */
+void MainWindow::onMachineDoubleClicked(const QModelIndex &index)
+{
+    mVmView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    onStartClicked();
+}
+
+/**
  * @brief The selection on the list view changed.
  *
  * The following tool buttons are enabled or disabled based on whether
@@ -399,6 +413,7 @@ void MainWindow::setupUi()
     connect(mRemoveButton, &QToolButton::clicked, this, &MainWindow::onRemoveClicked);
     connect(mSettingsButton, &QToolButton::clicked, this, &MainWindow::onSettingsClicked);
     connect(mStartButton, &QToolButton::clicked, this, &MainWindow::onStartClicked);
+    connect(mVmView, &QListView::doubleClicked, this, &MainWindow::onMachineDoubleClicked);
     connect(mVmView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,
