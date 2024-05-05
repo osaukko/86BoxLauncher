@@ -45,8 +45,6 @@ public:
 
 /**
  * @brief Set the *icon* by *iconType* and *iconName*
- * @note If the icon loading fails, the *iconType* is changed to Machine::NoIcon,
- *       and *iconName* is cleared.
  */
 void MachineData::loadIcon()
 {
@@ -62,11 +60,6 @@ void MachineData::loadIcon()
     case Machine::IconFromFile:
         icon = QIcon(iconName);
         break;
-    }
-
-    if (icon.isNull()) {
-        iconType = Machine::NoIcon;
-        iconName.clear();
     }
 }
 
@@ -140,17 +133,12 @@ QIcon Machine::icon() const
  * 
  * The *type* decides how the *name* is used. 
  * 
+ * - Machine::NoIcon -> name is not used, and the null icon is set
  * - Machine::IconFromTheme -> *name* is the icon name from the built-in theme
  * - Machine::IconFromFile -> *name* is the filename for the user-defined icon
  * 
  * @param[in] type   Icon type
  * @param[in] name   Icon name
- * 
- * @note If the icon loading fails, the *iconType* is changed to Machine::NoIcon,
- *       and *iconName* is cleared.
- * @todo Resetting the icon type and name on failure may not be right for the user.
- *       We should consider whether the type and name could be kept in the settings
- *       even if the loading fails.
  */
 void Machine::setIcon(IconType type, const QString &name)
 {
