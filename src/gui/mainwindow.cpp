@@ -29,6 +29,11 @@
 #include <QVBoxLayout>
 
 /**
+ * @brief Icon size for tool bar buttons
+ */
+const QSize TOOL_BAR_ICON_SIZE = {48, 48};
+
+/**
  * @brief Construct the main window widget
  * @param[in] parent   Pointer to the parent widget
  * @note In our case there is no parent widget, so main window is
@@ -90,6 +95,25 @@ void MainWindow::onAddClicked()
 }
 
 /**
+ * @brief The user triggered the context menu for the list view
+ * 
+ * The method selects an item under *pos* and opens the context popup
+ * menu. If there is no item under *pos*, the method exits without
+ * doing anything.
+ * 
+ * @param[in] pos   Context menu is requested for this position
+ */
+void MainWindow::onContextMenuRequest(const QPoint &pos)
+{
+    const auto index = mVmView->indexAt(pos);
+    if (!index.isValid()) {
+        return;
+    }
+    mVmView->selectionModel()->select(index, QItemSelectionModel::ClearAndSelect);
+    mContextMenu->popup(mVmView->mapToGlobal(pos));
+}
+
+/**
  * @brief The user selected edit machine from the settings button menu
  * 
  * We create a MachineDialog object and set the selected machine item for
@@ -141,10 +165,10 @@ void MainWindow::onMachineSelectionChanged(const QItemSelection &selected,
                                            const QItemSelection & /*deselected*/)
 {
     const auto gotSelection = !selected.isEmpty();
-    mStartButton->setEnabled(gotSelection);
+    mStartAction->setEnabled(gotSelection);
     mEditAction->setEnabled(gotSelection);
-    mSettingsButton->setEnabled(gotSelection);
-    mRemoveButton->setEnabled(gotSelection);
+    mSettingsAction->setEnabled(gotSelection);
+    mRemoveAction->setEnabled(gotSelection);
 }
 
 /**
@@ -248,26 +272,39 @@ void MainWindow::saveMachines()
 }
 
 /**
- * @brief A helper function to create tool buttons
+ * @brief A helper function to create tool buttons from actions
+ * 
+ * Set the following properties from given *action*
+ * 
+ * - checkable
+ * - checked
+ * - enabled
+ * - font
+ * - icon
+ * - popupMode (assuming the action has a menu)
+ * - statusTip
+ * - text
+ * - toolTip
+ * - whatsThis
  *
- * This function allows us to add tool buttons to the main windows using
- * a common style with a single line of code.
+ * Then sets:
  * 
- * @param[in] icon     Icon for the tool button
- * @param[in] text     Text shown below the icon
- * @param[in] parent   Pointer to the parent widget
+ * - Tool button style: Text under icon
+ * - Auto raise: true
+ * - Icon size: @ref TOOL_BAR_ICON_SIZE
  * 
- * @return Pointer to the new tool button widget
+ * @param[in] action      Setup tool button with this action
+ * @param[in] parent      Set this parent widget for the button
+ * 
+ * @return  Pointer to the new tool button widget
  */
-QToolButton *MainWindow::createToolButton(const QIcon &icon, const QString &text, QWidget *parent)
+QToolButton *MainWindow::createToolButton(QAction *action, QWidget *parent)
 {
-    constexpr auto toolbarIconSize = 48;
     auto *button = new QToolButton(parent);
+    button->setDefaultAction(action);
     button->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
     button->setAutoRaise(true);
-    button->setIconSize({toolbarIconSize, toolbarIconSize});
-    button->setIcon(icon);
-    button->setText(text);
+    button->setIconSize(TOOL_BAR_ICON_SIZE);
     return button;
 }
 
@@ -351,7 +388,7 @@ void MainWindow::setupUi()
 {
     constexpr auto initialWidth = 640;
     constexpr auto initialHeight = 480;
-    constexpr QSize machine_icon_size = {32, 32};
+    constexpr QSize machineIconSize = {32, 32};
 
     resize({initialWidth, initialHeight});
     setWindowIcon(QIcon::fromTheme("86boxlauncher"));
@@ -360,23 +397,28 @@ void MainWindow::setupUi()
     mSettings = new Settings(this);
     restoreGeometry(mSettings->mainWindowGeometry());
 
+    // Setup actions
+    mAddAction = new QAction(QIcon::fromTheme("86box-new"), tr("Add"), this);
+    mEditAction = new QAction(QIcon::fromTheme("document-edit"), tr("Edit Machine"), this);
+    mRemoveAction = new QAction(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
+    mSettingsAction = new QAction(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
+    mStartAction = new QAction(QIcon::fromTheme("86box-start"), tr("Start"), this);
+    mPreferencesAction = new QAction(QIcon::fromTheme("86box-preferences"), tr("Preferences"), this);
+    mEditAction->setEnabled(false);
+    mRemoveAction->setEnabled(false);
+    mSettingsAction->setEnabled(false);
+    mStartAction->setEnabled(false);
+
     // Toolbar widgets
-    mAddButton = createToolButton(QIcon::fromTheme("86box-new"), tr("Add"), this);
-    mStartButton = createToolButton(QIcon::fromTheme("86box-start"), tr("Start"), this);
-    mSettingsButton = createToolButton(QIcon::fromTheme("86box-settings"), tr("Settings"), this);
+    mAddButton = createToolButton(mAddAction, this);
+    mStartButton = createToolButton(mStartAction, this);
+    mSettingsButton = createToolButton(mSettingsAction, this);
     mSeparatorLine = new QFrame(this);
-    mRemoveButton = createToolButton(QIcon::fromTheme("86box-remove"), tr("Remove"), this);
-    mPreferencesButton = createToolButton(QIcon::fromTheme("86box-preferences"),
-                                          tr("Preferences"),
-                                          this);
-    mStartButton->setEnabled(false);
-    mSettingsButton->setEnabled(false);
+    mRemoveButton = createToolButton(mRemoveAction, this);
+    mPreferencesButton = createToolButton(mPreferencesAction, this);
     mSeparatorLine->setFrameStyle(QFrame::VLine | QFrame::Sunken);
-    mRemoveButton->setEnabled(false);
 
     // Add menu for settings button
-    mEditAction = new QAction(QIcon::fromTheme("document-edit"), tr("Edit Machine"));
-    mEditAction->setEnabled(false);
     mSettingsMenu = new QMenu(mSettingsButton);
     mSettingsMenu->addAction(mEditAction);
     mSettingsButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -395,10 +437,19 @@ void MainWindow::setupUi()
     // List view and model for virtual machines
     mVmModel = new MachineListModel(this);
     mVmView = new QListView;
-    mVmView->setIconSize(machine_icon_size);
+    mVmView->setIconSize(machineIconSize);
     mVmView->setModel(mVmModel);
     mVmView->setDragDropMode(QListView::InternalMove);
     mVmView->setItemDelegateForColumn(0, new MachineDelegate(mVmView));
+
+    // Add context menu for list view
+    mContextMenu = new QMenu(mVmView);
+    mContextMenu->addAction(mStartAction);
+    mContextMenu->addAction(mSettingsAction);
+    mContextMenu->addAction(mEditAction);
+    mContextMenu->addSeparator();
+    mContextMenu->addAction(mRemoveAction);
+    mVmView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     // Main layout
     mMainLayout = new QVBoxLayout;
@@ -407,13 +458,17 @@ void MainWindow::setupUi()
     setLayout(mMainLayout);
 
     // Connecting actions
-    connect(mAddButton, &QToolButton::clicked, this, &MainWindow::onAddClicked);
+    connect(mAddAction, &QAction::triggered, this, &MainWindow::onAddClicked);
     connect(mEditAction, &QAction::triggered, this, &MainWindow::onEditClicked);
-    connect(mPreferencesButton, &QToolButton::clicked, this, &MainWindow::onPreferencesClicked);
-    connect(mRemoveButton, &QToolButton::clicked, this, &MainWindow::onRemoveClicked);
-    connect(mSettingsButton, &QToolButton::clicked, this, &MainWindow::onSettingsClicked);
-    connect(mStartButton, &QToolButton::clicked, this, &MainWindow::onStartClicked);
+    connect(mPreferencesAction, &QAction::triggered, this, &MainWindow::onPreferencesClicked);
+    connect(mRemoveAction, &QAction::triggered, this, &MainWindow::onRemoveClicked);
+    connect(mSettingsAction, &QAction::triggered, this, &MainWindow::onSettingsClicked);
+    connect(mStartAction, &QAction::triggered, this, &MainWindow::onStartClicked);
     connect(mVmView, &QListView::doubleClicked, this, &MainWindow::onMachineDoubleClicked);
+    connect(mVmView,
+            &QListView::customContextMenuRequested,
+            this,
+            &MainWindow::onContextMenuRequest);
     connect(mVmView->selectionModel(),
             &QItemSelectionModel::selectionChanged,
             this,

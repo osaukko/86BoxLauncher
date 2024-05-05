@@ -51,6 +51,7 @@ protected:
 
 private slots:
     void onAddClicked();
+    void onContextMenuRequest(const QPoint &pos);
     void onEditClicked();
     void onMachineDoubleClicked(const QModelIndex &index);
     void onMachineSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
@@ -61,9 +62,8 @@ private slots:
     void saveMachines();
 
 private:
-    static QToolButton *createToolButton(const QIcon &icon,
-                                         const QString &text,
-                                         QWidget *parent = nullptr);
+    static QToolButton *createToolButton(QAction *action, QWidget *parent = nullptr);
+
     void restoreMachines();
     void runCommand(const QString &command, const Machine &machine);
     void setupUi();
@@ -102,6 +102,14 @@ private:
      */
     QHBoxLayout *mToolBarLayout{};
 
+    // Actions for buttons and menus
+    QAction *mAddAction{};         /*!< @brief Add or import machine configuration */
+    QAction *mEditAction{};        /*!< @brief Edit action to open the MachineDialog */
+    QAction *mPreferencesAction{}; /*!< @brief Preferences for the 86BoxLauncher */
+    QAction *mRemoveAction{};      /*!< @brief Remove selected machine item */
+    QAction *mSettingsAction{};    /*!< @brief Launch settings dialog for selected machine */
+    QAction *mStartAction{};       /*!< @brief Launch the 86Box emulator with selected machine */
+
     // Tool bar widgets
     QToolButton *mAddButton{};      /*!< @brief Button for adding or importing emulation setups */
     QToolButton *mStartButton{};    /*!< @brief Button for starting the emulation */
@@ -110,7 +118,6 @@ private:
     QToolButton *mRemoveButton{};   /*!< @brief Button for removing emulation setup */
     QToolButton *mPreferencesButton{}; /*!< @brief Button for opening the preferences dialog */
 
-    // Settings menu
     /**
      * @brief Alternative menu for the settings button
      *
@@ -118,7 +125,13 @@ private:
      * MachineDialog and edit settings for selected emulation item.
      */
     QMenu *mSettingsMenu{};
-    QAction *mEditAction{}; /*!< @brief Edit action to open the MachineDialog. */
+
+    /**
+     * @brief Context menu for list view
+     *
+     * This context menu is displayed when requested, and the list view has a selected item.
+     */
+    QMenu *mContextMenu{};
 
     /**
      * @brief List view for virtual machines
