@@ -1,5 +1,16 @@
 # 86BoxLauncher
 
+
+
+> [!NOTE]
+> **Project Archived**
+>
+> This project is no longer maintained. Since 86Box v5.0, the emulator includes a built-in machine manager, making external launchers like this one unnecessary. For more details, see the [86Box v5.0 release announcement](https://86box.net/2025/08/24/86box-v5-0.html).
+>
+> Feel free to fork this repository or use its code and resources as needed.
+
+
+
 The 86BoxLauncher is a configuration manager and launcher for the [86Box][86box] emulator.
 
 ![86BoxLauncher running on Arch Linux in KDE Plasma 6](docs/images/arch-linux-kde-plasma-6.png) ![86BoxLauncher running on Windows 10](docs/images/windows-10.png)
